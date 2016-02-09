@@ -542,7 +542,7 @@ namespace de4dot.code.deobfuscators.Confuser {
 			public abstract void Decrypt(byte[] fileData, int offset, uint k1, int size, out uint[] methodData, out byte[] codeData);
 
 			public bool IsCodeFollowedByExtraSections(uint options) {
-				return (options >> 8) == 0;
+				return options >> 8 == 0;
 			}
 		}
 
@@ -628,7 +628,7 @@ namespace de4dot.code.deobfuscators.Confuser {
 				int maxStack = (int)methodData[methodDataIndexes.maxStack];
 				dm.mhMaxStack = (ushort)maxStack;
 				dm.mhLocalVarSigTok = methodData[methodDataIndexes.localVarSigTok];
-				if (dm.mhLocalVarSigTok != 0 && (dm.mhLocalVarSigTok >> 24) != 0x11)
+				if (dm.mhLocalVarSigTok != 0 && dm.mhLocalVarSigTok >> 24 != 0x11)
 					throw new ApplicationException("Invalid local var sig token");
 				int numExceptions = (int)methodData[methodDataIndexes.ehs];
 				uint options = methodData[methodDataIndexes.options];

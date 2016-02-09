@@ -429,7 +429,7 @@ namespace de4dot.code.deobfuscators.Confuser {
 
 		bool hasInitializedStringDecrypter = false;
 		void InitializeStringDecrypter() {
-			if (hasInitializedStringDecrypter || (stringDecrypter== null || !stringDecrypter.Detected))
+			if (hasInitializedStringDecrypter || stringDecrypter== null || !stringDecrypter.Detected)
 				return;
 			hasInitializedStringDecrypter = true;
 
@@ -441,7 +441,7 @@ namespace de4dot.code.deobfuscators.Confuser {
 
 		bool hasInitializedConstantsDecrypter = false;
 		void InitializeConstantsDecrypterV18() {
-			if (hasInitializedConstantsDecrypter || (constantsDecrypterV18 == null || !constantsDecrypterV18.Detected))
+			if (hasInitializedConstantsDecrypter || constantsDecrypterV18 == null || !constantsDecrypterV18.Detected)
 				return;
 			hasInitializedConstantsDecrypter = true;
 
@@ -477,7 +477,7 @@ namespace de4dot.code.deobfuscators.Confuser {
 		}
 
 		void Initialize(ConstantsDecrypterBase constDecrypter, ref bool hasInitialized) {
-			if (hasInitialized || (constDecrypter == null || !constDecrypter.Detected))
+			if (hasInitialized || constDecrypter == null || !constDecrypter.Detected)
 				return;
 			hasInitializedConstantsDecrypter15 = true;
 

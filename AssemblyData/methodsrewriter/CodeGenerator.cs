@@ -313,7 +313,7 @@ namespace AssemblyData.methodsrewriter {
 				else if (obj is Type)
 					ilg.Emit(opcode, (Type)obj);
 				else
-					throw new ApplicationException(string.Format("Unknown type: {0}", (obj == null ? obj : obj.GetType())));
+					throw new ApplicationException(string.Format("Unknown type: {0}", obj == null ? obj : obj.GetType()));
 				break;
 
 			case OperandType.InlineVar:

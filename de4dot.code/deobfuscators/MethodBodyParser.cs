@@ -86,7 +86,7 @@ namespace de4dot.code.deobfuscators {
 				if (mbHeader.codeSize > int.MaxValue)
 					throw new InvalidMethodBody();
 				mbHeader.localVarSigTok = reader.ReadUInt32();
-				if (mbHeader.localVarSigTok != 0 && (mbHeader.localVarSigTok >> 24) != 0x11)
+				if (mbHeader.localVarSigTok != 0 && mbHeader.localVarSigTok >> 24 != 0x11)
 					throw new InvalidMethodBody();
 			}
 			else

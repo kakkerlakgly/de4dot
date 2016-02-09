@@ -229,7 +229,7 @@ namespace de4dot.code.deobfuscators.Confuser {
 				throw new ApplicationException("Could not find modulus");
 
 			token = 0x06000000 | (uint)ModPow(@base, 0x47, mod);
-			if ((token >> 24) != 0x06)
+			if (token >> 24 != 0x06)
 				throw new ApplicationException("Illegal entry point token");
 			return true;
 		}
@@ -238,9 +238,9 @@ namespace de4dot.code.deobfuscators.Confuser {
 			ulong m = 1;
 			while (pow > 0) {
 				if ((pow & 1) != 0)
-					m = (m * @base) % mod;
+					m = m * @base % mod;
 				pow = pow >> 1;
-				@base = (@base * @base) % mod;
+				@base = @base * @base % mod;
 			}
 			return m;
 		}

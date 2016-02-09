@@ -123,7 +123,7 @@ namespace de4dot.code.deobfuscators.Eazfuscator_NET {
 		}
 
 		public MethodDef RealMethod {
-			get { return (realMethod != null ? realMethod : stringMethod); }
+			get { return realMethod != null ? realMethod : stringMethod; }
 		}
 
 		public StringDecrypter(ModuleDefMD module, DecrypterType decrypterType) {

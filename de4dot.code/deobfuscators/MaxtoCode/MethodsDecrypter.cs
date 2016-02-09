@@ -623,7 +623,7 @@ namespace de4dot.code.deobfuscators.MaxtoCode {
 						ki = keyReset;
 				}
 
-				if ((encrypted.Length % 3) != 0)
+				if (encrypted.Length % 3 != 0)
 					decrypted[j] = (byte)(encrypted[i] ^ mcKey.ReadByte(ki));
 
 				return decrypted;

@@ -270,7 +270,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression
 				throw new SharpZipBaseException("Header checksum illegal");
 			}
 			
-			if ((header & 0x0f00) != (DEFLATED << 8)) {
+			if ((header & 0x0f00) != DEFLATED << 8) {
 				throw new SharpZipBaseException("Compression Method unknown");
 			}
 			

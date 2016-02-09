@@ -52,7 +52,7 @@ namespace de4dot.code.deobfuscators.CodeWall.randomc {
 			const uint factor = 1812433253;
 			mt[0] = (uint)seed;
 			for (mti = 1; mti < MERS_N; mti++) {
-				mt[mti] = (factor * (mt[mti - 1] ^ (mt[mti - 1] >> 30)) + (uint)mti);
+				mt[mti] = factor * (mt[mti - 1] ^ (mt[mti - 1] >> 30)) + (uint)mti;
 			}
 		}
 

@@ -170,7 +170,7 @@ namespace SevenZip.Compression.LZMA
 			{
 				m_DictionarySize = dictionarySize;
 				m_DictionarySizeCheck = Math.Max(m_DictionarySize, 1);
-				uint blockSize = Math.Max(m_DictionarySizeCheck, (1 << 12));
+				uint blockSize = Math.Max(m_DictionarySizeCheck, 1 << 12);
 				m_OutWindow.Create(blockSize);
 			}
 		}
@@ -316,14 +316,14 @@ namespace SevenZip.Compression.LZMA
 							if (posSlot >= Base.kStartPosModelIndex)
 							{
 								int numDirectBits = (int)((posSlot >> 1) - 1);
-								rep0 = ((2 | (posSlot & 1)) << numDirectBits);
+								rep0 = (2 | (posSlot & 1)) << numDirectBits;
 								if (posSlot < Base.kEndPosModelIndex)
 									rep0 += BitTreeDecoder.ReverseDecode(m_PosDecoders,
 											rep0 - posSlot - 1, m_RangeDecoder, numDirectBits);
 								else
 								{
-									rep0 += (m_RangeDecoder.DecodeDirectBits(
-										numDirectBits - Base.kNumAlignBits) << Base.kNumAlignBits);
+									rep0 += m_RangeDecoder.DecodeDirectBits(
+									    numDirectBits - Base.kNumAlignBits) << Base.kNumAlignBits;
 									rep0 += m_PosAlignDecoder.ReverseDecode(m_RangeDecoder);
 								}
 							}
@@ -358,7 +358,7 @@ namespace SevenZip.Compression.LZMA
 				throw new InvalidParamException();
 			UInt32 dictionarySize = 0;
 			for (int i = 0; i < 4; i++)
-				dictionarySize += ((UInt32)(properties[1 + i])) << (i * 8);
+				dictionarySize += (UInt32)properties[1 + i] << (i * 8);
 			SetDictionarySize(dictionarySize);
 			SetLiteralProperties(lp, lc);
 			SetPosBitsProperties(pb);

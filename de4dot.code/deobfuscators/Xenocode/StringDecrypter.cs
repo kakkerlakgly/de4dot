@@ -87,7 +87,7 @@ namespace de4dot.code.deobfuscators.Xenocode {
 			int newLen = es.Length / 4;
 			var sb = new StringBuilder(newLen);
 			for (int i = 0; i < newLen * 4; i += 4) {
-				char c = (char)((es[i] - 'a') +
+				char c = (char)(es[i] - 'a' +
 							((es[i + 1] - 'a') << 4) +
 							((es[i + 2] - 'a') << 8) +
 							((es[i + 3] - 'a') << 12) - magic);

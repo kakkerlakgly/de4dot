@@ -39,17 +39,17 @@ namespace de4dot.code.deobfuscators.MPRESS {
 
 	static class Lzmat {
 		const int LZMAT_DEFAULT_CNT = 0x12;
-		const int LZMAT_1BYTE_CNT = (0xFF + LZMAT_DEFAULT_CNT);
-		const int LZMAT_2BYTE_CNT = (0xFFFF + LZMAT_1BYTE_CNT);
-		const int LZMAT_MAX_2BYTE_CNT = (LZMAT_2BYTE_CNT - 1);
+		const int LZMAT_1BYTE_CNT = 0xFF + LZMAT_DEFAULT_CNT;
+		const int LZMAT_2BYTE_CNT = 0xFFFF + LZMAT_1BYTE_CNT;
+		const int LZMAT_MAX_2BYTE_CNT = LZMAT_2BYTE_CNT - 1;
 
 		const int MAX_LZMAT_SHORT_DIST0 = 0x80;
-		const int MAX_LZMAT_SHORT_DIST1 = (0x800 | MAX_LZMAT_SHORT_DIST0);
+		const int MAX_LZMAT_SHORT_DIST1 = 0x800 | MAX_LZMAT_SHORT_DIST0;
 		const int MAX_LZMAT_LONG_DIST0 = 0x40;
-		const int MAX_LZMAT_LONG_DIST1 = (0x400 | MAX_LZMAT_LONG_DIST0);
-		const int MAX_LZMAT_LONG_DIST2 = (0x4000 | MAX_LZMAT_LONG_DIST1);
-		const int MAX_LZMAT_LONG_DIST3 = (0x40000 | MAX_LZMAT_LONG_DIST2);
-		const int MAX_LZMAT_GAMMA_DIST = (MAX_LZMAT_LONG_DIST3 - 1);
+		const int MAX_LZMAT_LONG_DIST1 = 0x400 | MAX_LZMAT_LONG_DIST0;
+		const int MAX_LZMAT_LONG_DIST2 = 0x4000 | MAX_LZMAT_LONG_DIST1;
+		const int MAX_LZMAT_LONG_DIST3 = 0x40000 | MAX_LZMAT_LONG_DIST2;
+		const int MAX_LZMAT_GAMMA_DIST = MAX_LZMAT_LONG_DIST3 - 1;
 
 		const int LZMAT_DIST_MSK0 = 0x3F;
 		const int LZMAT_DIST_MSK1 = 0x3FF;
@@ -59,11 +59,11 @@ namespace de4dot.code.deobfuscators.MPRESS {
 		}
 
 		static byte LZMAT_GET_U8(byte[] _p_, uint _i_, byte _n_) {
-			return (byte)(((_n_)!=0?((_p_[_i_]>>4)|(_p_[_i_+1]<<4)):_p_[_i_]));
+			return (byte)(_n_!=0?(_p_[_i_]>>4)|(_p_[_i_+1]<<4):_p_[_i_]);
 		}
 
 		static ushort LZMAT_GET_LE16(byte[] _p_, uint _i_, byte _n_) {
-			return (ushort)((_n_)!=0?((_p_[_i_]>>4)|((ushort)(GET_LE16(_p_,_i_+1))<<4)):GET_LE16(_p_,_i_));
+			return (ushort)(_n_!=0?(_p_[_i_]>>4)|((ushort)GET_LE16(_p_,_i_+1)<<4):GET_LE16(_p_,_i_));
 		}
 
 		static ushort GET_LE16(byte[] _p_, uint _i_) {
@@ -78,13 +78,13 @@ namespace de4dot.code.deobfuscators.MPRESS {
 	uint  cbOutBuf = (uint)pbOut.Length;
 	byte  cur_nib;
 	pbOut[0] = pbIn[0];
-	for(inPos=1, outPos=1, cur_nib=0; inPos<(cbIn-cur_nib);)
+	for(inPos=1, outPos=1, cur_nib=0; inPos<cbIn-cur_nib;)
 	{
 		int bc;
 		byte tag;
 		tag = LZMAT_GET_U8(pbIn,inPos,cur_nib);
 		inPos++;
-		for(bc=0; bc<8 && inPos<(cbIn-cur_nib) && outPos<cbOutBuf; bc++, tag<<=1)
+		for(bc=0; bc<8 && inPos<cbIn-cur_nib && outPos<cbOutBuf; bc++, tag<<=1)
 		{
 			if((tag&0x80)!=0) // gamma
 			{
@@ -110,11 +110,11 @@ namespace de4dot.code.deobfuscators.MPRESS {
 						dist += 0x441;
 						break;
 					case 3:
-						if((inPos+2+cur_nib)>cbIn)
+						if(inPos+2+cur_nib>cbIn)
 							return LzmatStatus.INTEGRITY_FAILURE+1;
 						inPos++;
-						dist = (dist + 
-							((uint)LZMAT_GET_U4(pbIn,ref inPos,ref cur_nib)<<14))
+						dist = dist + 
+						       ((uint)LZMAT_GET_U4(pbIn,ref inPos,ref cur_nib)<<14)
 							+0x4441;
 						break;
 					}
@@ -139,7 +139,7 @@ namespace de4dot.code.deobfuscators.MPRESS {
 				}
 				else
 				{
-					if((inPos+1+cur_nib)>cbIn)
+					if(inPos+1+cur_nib>cbIn)
 						return LzmatStatus.INTEGRITY_FAILURE+2;
 					r_cnt = LZMAT_GET_U8(pbIn,inPos,cur_nib);
 					inPos++;
@@ -149,7 +149,7 @@ namespace de4dot.code.deobfuscators.MPRESS {
 					}
 					else
 					{
-						if((inPos+2+cur_nib)>cbIn)
+						if(inPos+2+cur_nib>cbIn)
 							return LzmatStatus.INTEGRITY_FAILURE+3;
 						r_cnt = (uint)(LZMAT_GET_LE16(pbIn,inPos,cur_nib)+LZMAT_1BYTE_CNT);
 						inPos+=2;
@@ -168,7 +168,7 @@ namespace de4dot.code.deobfuscators.MPRESS {
 							}
 							r_cnt+=(uint)((tag&0x7F)+4);
 							r_cnt<<=1;
-							if((outPos+(r_cnt<<2))>cbOutBuf)
+							if(outPos+(r_cnt<<2)>cbOutBuf)
 								return LzmatStatus.BUFFER_TOO_SMALL;
 							while(r_cnt--!=0 && outPos<cbOutBuf)
 							{
@@ -185,7 +185,7 @@ namespace de4dot.code.deobfuscators.MPRESS {
 				}
 				if(outPos<dist)
 					return LzmatStatus.INTEGRITY_FAILURE+4;
-				if((outPos+r_cnt)>cbOutBuf)
+				if(outPos+r_cnt>cbOutBuf)
 					return LzmatStatus.BUFFER_TOO_SMALL+1;
 				r_pos = outPos-dist;
 				while(r_cnt--!=0 && outPos<cbOutBuf)
@@ -233,7 +233,7 @@ namespace de4dot.code.deobfuscators.MPRESS {
 				byte tag = inBuf[inIndex + inPos++];
 				for (int bc = 0; bc < 8 && inPos < inLen && outPos < outLen; bc++, tag <<= 1) {
 					if ((tag & 0x80) != 0) {
-						ushort outPosDispl = (ushort)((((inBuf[inIndex + inPos + 1]) & 0xF) << 8) + inBuf[inIndex + inPos]);
+						ushort outPosDispl = (ushort)(((inBuf[inIndex + inPos + 1] & 0xF) << 8) + inBuf[inIndex + inPos]);
 						inPos++;
 						int r_cnt = (inBuf[inIndex + inPos++] >> 4) + 3;
 						if (outPosDispl == 0)

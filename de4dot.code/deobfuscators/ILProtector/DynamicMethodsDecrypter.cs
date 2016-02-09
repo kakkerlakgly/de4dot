@@ -471,7 +471,7 @@ namespace de4dot.code.deobfuscators.ILProtector {
 				byte* pis = GetAddr(*(byte**)p);
 				p = *(byte**)pis;
 				byte* pam = *(byte**)(p + IntPtr.Size * 2);
-				p = *(byte**)(p + ((Environment.Version.Major - 2) / 2 * IntPtr.Size));
+				p = *(byte**)(p + (Environment.Version.Major - 2) / 2 * IntPtr.Size);
 				p += IntPtr.Size * 8 + 0x18;
 				p = LookUp(p, AppDomain.CurrentDomain.Id);
 				p = *(byte**)(p + IntPtr.Size * 16 + 0x18);

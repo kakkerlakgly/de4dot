@@ -323,7 +323,7 @@ namespace de4dot.code.deobfuscators.Spices_Net {
 
 			if ((stringDataFlags & StringDataFlags.Encrypted2) != 0) {
 				var k = module.Assembly.PublicKey.Data;
-				int mask = (byte)(~k.Length);
+				int mask = (byte)~k.Length;
 				for (int i = 0; i < decryptedData.Length; i++)
 					decryptedData[i] ^= k[i & mask];
 			}

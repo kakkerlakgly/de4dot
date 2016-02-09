@@ -451,7 +451,7 @@ namespace de4dot.blocks.cflow {
 			int shift = b.Value;
 			ulong validMask = a.ValidMask >> shift;
 			if (a.IsBitValid(sizeof(long) * 8 - 1))
-				validMask |= (ulong.MaxValue << (sizeof(long) * 8 - shift));
+				validMask |= ulong.MaxValue << (sizeof(long) * 8 - shift);
 			return new Int64Value(a.Value >> shift, validMask);
 		}
 

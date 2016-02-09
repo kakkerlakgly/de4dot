@@ -558,7 +558,7 @@ namespace de4dot.blocks.cflow {
 			int shift = b.Value;
 			uint validMask = a.ValidMask >> shift;
 			if (a.IsBitValid(sizeof(int) * 8 - 1))
-				validMask |= (uint.MaxValue << (sizeof(int) * 8 - shift));
+				validMask |= uint.MaxValue << (sizeof(int) * 8 - shift);
 			return new Int32Value(a.Value >> shift, validMask);
 		}
 

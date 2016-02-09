@@ -49,9 +49,9 @@ namespace de4dot.code.deobfuscators.CodeWall.randomc {
 		public uint BRandom() {
 			ulong sum;
 			sum = (ulong)2111111111UL * (ulong)x[3] +
-			   (ulong)1492 * (ulong)(x[2]) +
-			   (ulong)1776 * (ulong)(x[1]) +
-			   (ulong)5115 * (ulong)(x[0]) +
+			   (ulong)1492 * (ulong)x[2] +
+			   (ulong)1776 * (ulong)x[1] +
+			   (ulong)5115 * (ulong)x[0] +
 			   (ulong)x[4];
 			x[3] = x[2]; x[2] = x[1]; x[1] = x[0];
 			x[4] = (uint)(sum >> 32);			// Carry

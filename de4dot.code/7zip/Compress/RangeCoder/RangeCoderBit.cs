@@ -5,7 +5,7 @@ namespace SevenZip.Compression.RangeCoder
 	struct BitDecoder
 	{
 		public const int kNumBitModelTotalBits = 11;
-		public const uint kBitModelTotal = (1 << kNumBitModelTotalBits);
+		public const uint kBitModelTotal = 1 << kNumBitModelTotalBits;
 		const int kNumMoveBits = 5;
 
 		uint Prob;
@@ -15,7 +15,7 @@ namespace SevenZip.Compression.RangeCoder
 			if (symbol == 0)
 				Prob += (kBitModelTotal - Prob) >> numMoveBits;
 			else
-				Prob -= (Prob) >> numMoveBits;
+				Prob -= Prob >> numMoveBits;
 		}
 
 		public void Init() { Prob = kBitModelTotal >> 1; }
@@ -38,7 +38,7 @@ namespace SevenZip.Compression.RangeCoder
 			{
 				rangeDecoder.Range -= newBound;
 				rangeDecoder.Code -= newBound;
-				Prob -= (Prob) >> kNumMoveBits;
+				Prob -= Prob >> kNumMoveBits;
 				if (rangeDecoder.Range < Decoder.kTopValue)
 				{
 					rangeDecoder.Code = (rangeDecoder.Code << 8) | (byte)rangeDecoder.Stream.ReadByte();

@@ -4,7 +4,7 @@ namespace SevenZip.Compression.RangeCoder
 {
 	class Decoder
 	{
-		public const uint kTopValue = (1 << 24);
+		public const uint kTopValue = 1 << 24;
 		public uint Range;
 		public uint Code;
 		// public Buffer.InBuffer Stream = new Buffer.InBuffer(1 << 16);
