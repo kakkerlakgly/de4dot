@@ -23,7 +23,7 @@ using dnlib.DotNet;
 
 namespace de4dot.code {
 	public class Logger : ILogger {
-		public readonly static Logger Instance = new Logger();
+		public static readonly Logger Instance = new Logger();
 
 		int indentLevel = 0;
 		readonly int indentSize = 0;

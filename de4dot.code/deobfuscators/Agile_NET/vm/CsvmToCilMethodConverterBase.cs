@@ -27,7 +27,7 @@ using de4dot.blocks;
 namespace de4dot.code.deobfuscators.Agile_NET.vm {
 	abstract class CsvmToCilMethodConverterBase {
 		readonly IDeobfuscatorContext deobfuscatorContext;
-		readonly protected ModuleDefMD module;
+		protected readonly ModuleDefMD module;
 		readonly CilOperandInstructionRestorer operandRestorer = new CilOperandInstructionRestorer();
 		readonly Dictionary<Instruction, int> cilToVmIndex = new Dictionary<Instruction, int>();
 		readonly Dictionary<int, Instruction> vmIndexToCil = new Dictionary<int, Instruction>();

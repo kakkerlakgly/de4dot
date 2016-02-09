@@ -23,7 +23,7 @@ using System.Collections.Generic;
 
 namespace Test.Rename.Dll {
 	static class g {
-		static public T m<T>(T t) {
+		public static T m<T>(T t) {
 			return t;
 		}
 

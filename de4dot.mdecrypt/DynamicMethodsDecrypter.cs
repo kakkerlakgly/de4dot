@@ -242,7 +242,7 @@ namespace de4dot.mdecrypt {
 					*(IntPtr*)jitterVtbl != origCompileMethod;
 		}
 
-		unsafe static IntPtr GetEndOfText(IntPtr hDll) {
+		static unsafe IntPtr GetEndOfText(IntPtr hDll) {
 			byte* p = (byte*)hDll;
 			p += *(uint*)(p + 0x3C);	// add DOSHDR.e_lfanew
 			p += 4;
@@ -399,11 +399,11 @@ namespace de4dot.mdecrypt {
 			return 0;
 		}
 
-		unsafe static byte* Align(byte* p, int alignment) {
+		static unsafe byte* Align(byte* p, int alignment) {
 			return (byte*)new IntPtr((long)((ulong)(p + alignment - 1) & ~(ulong)(alignment - 1)));
 		}
 
-		unsafe static byte[] ReadExtraSections(byte* p) {
+		static unsafe byte[] ReadExtraSections(byte* p) {
 			p = Align(p, 4);
 			byte* startPos = p;
 			p = ParseSection(p);
@@ -413,7 +413,7 @@ namespace de4dot.mdecrypt {
 			return sections;
 		}
 
-		unsafe static byte* ParseSection(byte* p) {
+		static unsafe byte* ParseSection(byte* p) {
 			byte flags;
 			do {
 				p = Align(p, 4);

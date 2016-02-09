@@ -74,7 +74,7 @@ namespace de4dot.code.deobfuscators.Agile_NET.vm.v1 {
 			executeMethodPops = CountPops(executeMethod);
 		}
 
-		static internal IEnumerable<FieldDef> GetFields(TypeDef type) {
+		internal static IEnumerable<FieldDef> GetFields(TypeDef type) {
 			var typeFields = new FieldDefAndDeclaringTypeDict<FieldDef>();
 			foreach (var field in type.Fields)
 				typeFields.Add(field, field);

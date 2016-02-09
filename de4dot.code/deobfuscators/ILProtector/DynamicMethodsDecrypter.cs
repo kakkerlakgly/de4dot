@@ -218,7 +218,7 @@ namespace de4dot.code.deobfuscators.ILProtector {
 				decryptMethod = (DecryptMethod)Marshal.GetDelegateForFunctionPointer(addr, typeof(DecryptMethod));
 			}
 
-			public unsafe override byte[] Decrypt(int methodId, uint rid) {
+			public override unsafe byte[] Decrypt(int methodId, uint rid) {
 				byte* pMethodCode;
 				int methodSize;
 				if (!decryptMethod(appDomainId, asmHashCode, methodId, out pMethodCode, out methodSize))
@@ -241,7 +241,7 @@ namespace de4dot.code.deobfuscators.ILProtector {
 				decryptMethod = (DecryptMethod)Marshal.GetDelegateForFunctionPointer(addr, typeof(DecryptMethod));
 			}
 
-			public unsafe override byte[] Decrypt(int methodId, uint rid) {
+			public override unsafe byte[] Decrypt(int methodId, uint rid) {
 				byte* pMethodCode;
 				int methodSize;
 				if (!decryptMethod(Environment.Version.Major, appDomainId, asmHashCode, methodId, out pMethodCode, out methodSize))
@@ -267,7 +267,7 @@ namespace de4dot.code.deobfuscators.ILProtector {
 				PatchRuntime(addr);
 			}
 
-			public unsafe override byte[] Decrypt(int methodId, uint rid) {
+			public override unsafe byte[] Decrypt(int methodId, uint rid) {
 				Delegate createdDelegate;
 				if (!decryptMethod(Environment.Version.Major, appDomainId, asmHashCode, methodId, MyDecryptCallback, out createdDelegate))
 					return null;
@@ -297,7 +297,7 @@ namespace de4dot.code.deobfuscators.ILProtector {
 				PatchRuntime(addr);
 			}
 
-			public unsafe override byte[] Decrypt(int methodId, uint rid) {
+			public override unsafe byte[] Decrypt(int methodId, uint rid) {
 				Delegate createdDelegate;
 				decryptReturnValue = false;
 				if (!decryptMethod(Environment.Version.Major, appDomainId, asmHashCode, methodId, new StackTrace(), MyDecryptCallback, out createdDelegate) &&
@@ -329,7 +329,7 @@ namespace de4dot.code.deobfuscators.ILProtector {
 				PatchRuntime(addr);
 			}
 
-			public unsafe override byte[] Decrypt(int methodId, uint rid) {
+			public override unsafe byte[] Decrypt(int methodId, uint rid) {
 				var encMethod = this.dmd.reflectionModule.ResolveMethod(0x06000000 + (int)rid);
 				var stackTrace = StackTracePatcher.WriteStackFrame(new StackTrace(), 1, encMethod);
 				if (!decryptMethod(Environment.Version.Major, appDomainId, asmHashCode, methodId, stackTrace, MyDecryptCallback))
@@ -497,7 +497,7 @@ namespace de4dot.code.deobfuscators.ILProtector {
 				return (byte*)hModule;
 			}
 
-			protected unsafe abstract void InitCode(byte* ba, byte* pam, byte* pd, byte* pm);
+			protected abstract unsafe void InitCode(byte* ba, byte* pam, byte* pd, byte* pm);
 
 			static unsafe byte* GetAddr(byte* p) {
 				if (IntPtr.Size == 4) {
@@ -580,7 +580,7 @@ namespace de4dot.code.deobfuscators.ILProtector {
 			};
 			unsafe delegate void InitCode32Delegate(byte* pppam, byte* m, IntPtr s, byte* pd, byte* f);
 			unsafe delegate void InitCode64Delegate(byte* pppam, byte* m, IntPtr s, byte* pd);
-			protected unsafe override void InitCode(byte* ba, byte* pam, byte* pd, byte* pm) {
+			protected override unsafe void InitCode(byte* ba, byte* pam, byte* pd, byte* pm) {
 				byte* ppam = (byte*)&pam;
 				byte* pppam = (byte*)&ppam;
 				if (IntPtr.Size == 4) {
@@ -600,7 +600,7 @@ namespace de4dot.code.deobfuscators.ILProtector {
 			}
 
 			unsafe delegate void InitCodeDelegate(byte* pppam, byte* m, IntPtr s, byte* pd);
-			protected unsafe override void InitCode(byte* ba, byte* pam, byte* pd, byte* pm) {
+			protected override unsafe void InitCode(byte* ba, byte* pam, byte* pd, byte* pm) {
 				int rva = IntPtr.Size == 4 ? 0x00013650 : 0x00016B50;
 				var del = (InitCodeDelegate)Marshal.GetDelegateForFunctionPointer(new IntPtr(ba + rva), typeof(InitCodeDelegate));
 				byte* ppam = (byte*)&pam;

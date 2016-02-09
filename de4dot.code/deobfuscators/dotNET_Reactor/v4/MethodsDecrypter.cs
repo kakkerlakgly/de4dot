@@ -125,8 +125,8 @@ namespace de4dot.code.deobfuscators.dotNET_Reactor.v4 {
 			}
 		}
 
-		readonly static short[] nativeLdci4 = new short[] { 0x55, 0x8B, 0xEC, 0xB8, -1, -1, -1, -1, 0x5D, 0xC3 };
-		readonly static short[] nativeLdci4_0 = new short[] { 0x55, 0x8B, 0xEC, 0x33, 0xC0, 0x5D, 0xC3 };
+		static readonly short[] nativeLdci4 = new short[] { 0x55, 0x8B, 0xEC, 0xB8, -1, -1, -1, -1, 0x5D, 0xC3 };
+		static readonly short[] nativeLdci4_0 = new short[] { 0x55, 0x8B, 0xEC, 0x33, 0xC0, 0x5D, 0xC3 };
 		public bool Decrypt(MyPEImage peImage, ISimpleDeobfuscator simpleDeobfuscator, ref DumpedMethods dumpedMethods, Dictionary<uint, byte[]> tokenToNativeCode, bool unpackedNativeFile) {
 			if (encryptedResource.Method == null)
 				return false;

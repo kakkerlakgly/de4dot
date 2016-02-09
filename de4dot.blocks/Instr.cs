@@ -48,7 +48,7 @@ namespace de4dot.blocks {
 			return instr.Instruction.GetLocal(locals);
 		}
 
-		static public bool IsFallThrough(OpCode opCode) {
+		public static bool IsFallThrough(OpCode opCode) {
 			switch (opCode.FlowControl) {
 			case FlowControl.Call:
 				return opCode != OpCodes.Jmp;

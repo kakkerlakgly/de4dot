@@ -241,7 +241,7 @@ namespace de4dot.code.deobfuscators.Agile_NET.vm.v2 {
 				this.OpCode = opCode;
 			}
 		}
-		readonly static List<ConvInfo> instructionInfos1 = new List<ConvInfo> {
+		static readonly List<ConvInfo> instructionInfos1 = new List<ConvInfo> {
 			new ConvInfo(0, false, false, OpCodes.Conv_I1),
 			new ConvInfo(1, false, false, OpCodes.Conv_I2),
 			new ConvInfo(2, false, false, OpCodes.Conv_I4),
