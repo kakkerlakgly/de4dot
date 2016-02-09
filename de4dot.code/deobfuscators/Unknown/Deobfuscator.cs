@@ -84,7 +84,7 @@ namespace de4dot.code.deobfuscators.Unknown {
 		}
 
 		string ScanTypes() {
-			foreach (var type in module.Types) {
+			foreach (var type in Module.Types) {
 				var fn = type.FullName;
 				if (fn == "ZYXDNGuarder")
 					return "DNGuard HVM";

@@ -22,13 +22,13 @@ using System.Collections.Generic;
 
 namespace de4dot.blocks.cflow {
 	public abstract class BlockDeobfuscator : IBlocksDeobfuscator {
-		protected List<Block> allBlocks;
-		protected Blocks blocks;
+		protected List<Block> AllBlocks;
+		protected Blocks Blocks;
 
 		public bool ExecuteIfNotModified { get; set; }
 
 		public virtual void DeobfuscateBegin(Blocks blocks) {
-			this.blocks = blocks;
+			this.Blocks = blocks;
 		}
 
 		public bool Deobfuscate(List<Block> allBlocks) {
@@ -47,7 +47,7 @@ namespace de4dot.blocks.cflow {
 		}
 
 		protected virtual void Initialize(List<Block> allBlocks) {
-			this.allBlocks = allBlocks;
+			this.AllBlocks = allBlocks;
 		}
 
 		protected abstract bool Deobfuscate(Block block);

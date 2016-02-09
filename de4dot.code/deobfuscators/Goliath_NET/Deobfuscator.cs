@@ -141,18 +141,18 @@ namespace de4dot.code.deobfuscators.Goliath_NET {
 
 		protected override void ScanForObfuscator() {
 			FindGoliathAttribute();
-			stringDecrypter = new StringDecrypter(module);
+			stringDecrypter = new StringDecrypter(Module);
 			stringDecrypter.Find();
-			integerDecrypter = new IntegerDecrypter(module);
+			integerDecrypter = new IntegerDecrypter(Module);
 			integerDecrypter.Find();
-			arrayDecrypter = new ArrayDecrypter(module);
+			arrayDecrypter = new ArrayDecrypter(Module);
 			arrayDecrypter.Find();
-			strongNameChecker = new StrongNameChecker(module);
+			strongNameChecker = new StrongNameChecker(Module);
 			strongNameChecker.Find();
 		}
 
 		void FindGoliathAttribute() {
-			foreach (var type in module.Types) {
+			foreach (var type in Module.Types) {
 				if (type.FullName.Contains("ObfuscatedByGoliath")) {
 					foundGoliathAttribute = true;
 					AddAttributeToBeRemoved(type, "Obfuscator attribute");
@@ -177,9 +177,9 @@ namespace de4dot.code.deobfuscators.Goliath_NET {
 		public override void DeobfuscateBegin() {
 			base.DeobfuscateBegin();
 
-			proxyCallFixer = new ProxyCallFixer(module);
+			proxyCallFixer = new ProxyCallFixer(Module);
 			proxyCallFixer.Find();
-			localsRestorer = new LocalsRestorer(module);
+			localsRestorer = new LocalsRestorer(Module);
 			if (options.RestoreLocals)
 				localsRestorer.Find();
 
@@ -198,7 +198,7 @@ namespace de4dot.code.deobfuscators.Goliath_NET {
 			}
 
 			if (options.DecryptArrays) {
-				arrayValueInliner = new ArrayValueInliner(module, initializedDataCreator);
+				arrayValueInliner = new ArrayValueInliner(Module, initializedDataCreator);
 				foreach (var method in arrayDecrypter.GetMethods()) {
 					arrayValueInliner.Add(method, (method2, gim, args) => {
 						return arrayDecrypter.Decrypt(method2);

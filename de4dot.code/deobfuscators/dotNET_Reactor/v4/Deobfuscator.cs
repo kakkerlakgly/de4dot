@@ -264,18 +264,18 @@ namespace de4dot.code.deobfuscators.dotNET_Reactor.v4 {
 		}
 
 		protected override void ScanForObfuscator() {
-			methodsDecrypter = new MethodsDecrypter(module);
+			methodsDecrypter = new MethodsDecrypter(Module);
 			methodsDecrypter.Find();
-			stringDecrypter = new StringDecrypter(module);
+			stringDecrypter = new StringDecrypter(Module);
 			stringDecrypter.Find(DeobfuscatedFile);
-			booleanDecrypter = new BooleanDecrypter(module);
+			booleanDecrypter = new BooleanDecrypter(Module);
 			booleanDecrypter.Find();
-			assemblyResolver = new AssemblyResolver(module);
+			assemblyResolver = new AssemblyResolver(Module);
 			assemblyResolver.Find(DeobfuscatedFile);
 			obfuscatorName = DetectVersion();
 			if (unpackedNativeFile)
 				obfuscatorName += " (native)";
-			resourceResolver = new ResourceResolver(module);
+			resourceResolver = new ResourceResolver(Module);
 			resourceResolver.Find(DeobfuscatedFile);
 		}
 
@@ -378,7 +378,7 @@ namespace de4dot.code.deobfuscators.dotNET_Reactor.v4 {
 
 				int numIntPtrSizeCompares = CountCompareSystemIntPtrSize(methodsDecrypter.Method);
 				bool hasSymmetricAlgorithm = new LocalTypes(methodsDecrypter.Method).Exists("System.Security.Cryptography.SymmetricAlgorithm");
-				if (module.IsClr40) {
+				if (Module.IsClr40) {
 					switch (numIntPtrSizeCompares) {
 					case 7:
 					case 9: return DeobfuscatorInfo.THE_NAME + " 4.5";
@@ -452,7 +452,7 @@ namespace de4dot.code.deobfuscators.dotNET_Reactor.v4 {
 		public override bool GetDecryptedModule(int count, ref byte[] newFileData, ref DumpedMethods dumpedMethods) {
 			if (count != 0)
 				return false;
-			fileData = ModuleBytes ?? DeobUtils.ReadModule(module);
+			fileData = ModuleBytes ?? DeobUtils.ReadModule(Module);
 			peImage = new MyPEImage(fileData);
 
 			if (!options.DecryptMethods)
@@ -490,7 +490,7 @@ namespace de4dot.code.deobfuscators.dotNET_Reactor.v4 {
 		public override void DeobfuscateBegin() {
 			base.DeobfuscateBegin();
 
-			proxyCallFixer = new ProxyCallFixer(module, DeobfuscatedFile);
+			proxyCallFixer = new ProxyCallFixer(Module, DeobfuscatedFile);
 			proxyCallFixer.FindDelegateCreator();
 			proxyCallFixer.Find();
 
@@ -499,7 +499,7 @@ namespace de4dot.code.deobfuscators.dotNET_Reactor.v4 {
 				FreePEImage();
 			booleanDecrypter.Initialize(fileData, DeobfuscatedFile);
 			booleanValueInliner = new BooleanValueInliner();
-			emptyClass = new EmptyClass(module);
+			emptyClass = new EmptyClass(Module);
 
 			if (options.DecryptBools) {
 				booleanValueInliner.Add(booleanDecrypter.Method, (method, gim, args) => {
@@ -519,7 +519,7 @@ namespace de4dot.code.deobfuscators.dotNET_Reactor.v4 {
 			}
 			DeobfuscatedFile.StringDecryptersAdded();
 
-			metadataTokenObfuscator = new MetadataTokenObfuscator(module);
+			metadataTokenObfuscator = new MetadataTokenObfuscator(Module);
 			antiStrongname = new AntiStrongName(GetDecrypterType());
 
 			bool removeResourceResolver = false;
@@ -581,9 +581,9 @@ namespace de4dot.code.deobfuscators.dotNET_Reactor.v4 {
 		}
 
 		void AddEntryPointCallToBeRemoved(MethodDef methodToBeRemoved) {
-			var entryPoint = module.EntryPoint;
+			var entryPoint = Module.EntryPoint;
 			AddCallToBeRemoved(entryPoint, methodToBeRemoved);
-			foreach (var calledMethod in DotNetUtils.GetCalledMethods(module, entryPoint))
+			foreach (var calledMethod in DotNetUtils.GetCalledMethods(Module, entryPoint))
 				AddCallToBeRemoved(calledMethod, methodToBeRemoved);
 		}
 
@@ -650,7 +650,7 @@ namespace de4dot.code.deobfuscators.dotNET_Reactor.v4 {
 			RemoveProxyDelegates(proxyCallFixer);
 			RemoveInlinedMethods();
 			if (options.RestoreTypes)
-				new TypesRestorer(module).Deobfuscate();
+				new TypesRestorer(Module).Deobfuscate();
 
 			var decrypterType = GetDecrypterType();
 			if (canRemoveDecrypterType && IsTypeCalled(decrypterType))
@@ -667,16 +667,16 @@ namespace de4dot.code.deobfuscators.dotNET_Reactor.v4 {
 		}
 
 		void FixEntryPoint() {
-			if (!module.IsClr1x)
+			if (!Module.IsClr1x)
 				return;
 
-			var ep = module.EntryPoint;
+			var ep = Module.EntryPoint;
 			if (ep == null)
 				return;
 			if (ep.MethodSig.GetParamCount() <= 1)
 				return;
 
-			ep.MethodSig = MethodSig.CreateStatic(ep.MethodSig.RetType, new SZArraySig(module.CorLibTypes.String));
+			ep.MethodSig = MethodSig.CreateStatic(ep.MethodSig.RetType, new SZArraySig(Module.CorLibTypes.String));
 			ep.ParamDefs.Clear();
 			ep.Parameters.UpdateParameterTypes();
 		}

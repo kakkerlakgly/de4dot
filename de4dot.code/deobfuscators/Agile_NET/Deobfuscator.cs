@@ -178,23 +178,23 @@ namespace de4dot.code.deobfuscators.Agile_NET {
 
 		protected override void ScanForObfuscator() {
 			FindCliSecureAttribute();
-			cliSecureRtType = new CliSecureRtType(module);
+			cliSecureRtType = new CliSecureRtType(Module);
 			cliSecureRtType.Find(ModuleBytes);
-			stringDecrypter = new StringDecrypter(module, cliSecureRtType.StringDecrypterInfos);
+			stringDecrypter = new StringDecrypter(Module, cliSecureRtType.StringDecrypterInfos);
 			stringDecrypter.Find();
-			resourceDecrypter = new ResourceDecrypter(module);
+			resourceDecrypter = new ResourceDecrypter(Module);
 			resourceDecrypter.Find();
-			proxyCallFixer = new ProxyCallFixer(module);
+			proxyCallFixer = new ProxyCallFixer(Module);
 			proxyCallFixer.FindDelegateCreator();
-			csvmV1 = new vm.v1.Csvm(DeobfuscatedFile.DeobfuscatorContext, module);
+			csvmV1 = new vm.v1.Csvm(DeobfuscatedFile.DeobfuscatorContext, Module);
 			csvmV1.Find();
-			csvmV2 = new vm.v2.Csvm(DeobfuscatedFile.DeobfuscatorContext, module);
+			csvmV2 = new vm.v2.Csvm(DeobfuscatedFile.DeobfuscatorContext, Module);
 			csvmV2.Find();
 		}
 
 		void FindCliSecureAttribute() {
 			obfuscatorName = "CliSecure";
-			foreach (var type in module.Types) {
+			foreach (var type in Module.Types) {
 				if (Utils.StartsWith(type.FullName, "SecureTeam.Attributes.ObfuscatedByCliSecureAttribute", StringComparison.Ordinal)) {
 					cliSecureAttributes.Add(type);
 					obfuscatorName = "CliSecure";
@@ -210,9 +210,9 @@ namespace de4dot.code.deobfuscators.Agile_NET {
 			if (count != 0 || !options.DecryptMethods)
 				return false;
 
-			byte[] fileData = ModuleBytes ?? DeobUtils.ReadModule(module);
+			byte[] fileData = ModuleBytes ?? DeobUtils.ReadModule(Module);
 			using (var peImage = new MyPEImage(fileData)) {
-				if (!new MethodsDecrypter().Decrypt(peImage, module, cliSecureRtType, ref dumpedMethods)) {
+				if (!new MethodsDecrypter().Decrypt(peImage, Module, cliSecureRtType, ref dumpedMethods)) {
 					Logger.v("Methods aren't encrypted or invalid signature");
 					return false;
 				}
@@ -256,10 +256,10 @@ namespace de4dot.code.deobfuscators.Agile_NET {
 				AddCctorInitCallToBeRemoved(resourceDecrypter.RsrcRrrMethod);
 			}
 
-			stackFrameHelper = new StackFrameHelper(module);
+			stackFrameHelper = new StackFrameHelper(Module);
 			stackFrameHelper.Find();
 
-			foreach (var type in module.Types) {
+			foreach (var type in Module.Types) {
 				if (type.FullName == "InitializeDelegate" && DotNetUtils.DerivesFromDelegate(type))
 					this.AddTypeToBeRemoved(type, "Obfuscator type");
 			}
@@ -331,8 +331,8 @@ namespace de4dot.code.deobfuscators.Agile_NET {
 
 			// Call hasNativeMethods() after all types/methods/etc have been removed since
 			// some of the removed methods could be native methods
-			if (!module.IsILOnly && !HasNativeMethods())
-				module.IsILOnly = true;
+			if (!Module.IsILOnly && !HasNativeMethods())
+				Module.IsILOnly = true;
 		}
 
 		public override IEnumerable<int> GetStringDecrypterMethods() {

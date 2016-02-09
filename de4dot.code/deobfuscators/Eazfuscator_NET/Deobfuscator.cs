@@ -94,19 +94,19 @@ namespace de4dot.code.deobfuscators.Eazfuscator_NET {
 		}
 
 		protected override void ScanForObfuscator() {
-			decrypterType = new DecrypterType(module, DeobfuscatedFile);
-			stringDecrypter = new StringDecrypter(module, decrypterType);
+			decrypterType = new DecrypterType(Module, DeobfuscatedFile);
+			stringDecrypter = new StringDecrypter(Module, decrypterType);
 			stringDecrypter.Find();
-			assemblyResolver = new AssemblyResolver(module, decrypterType);
+			assemblyResolver = new AssemblyResolver(Module, decrypterType);
 			assemblyResolver.Find();
-			resourceResolver = new ResourceResolver(module, assemblyResolver);
+			resourceResolver = new ResourceResolver(Module, assemblyResolver);
 			resourceResolver.Find();
 			if (stringDecrypter.Detected)
 				DetectVersion();
 		}
 
 		void DetectVersion() {
-			var version = new VersionDetector(module, stringDecrypter).Detect();
+			var version = new VersionDetector(Module, stringDecrypter).Detect();
 			if (version == null)
 				return;
 
@@ -132,7 +132,7 @@ namespace de4dot.code.deobfuscators.Eazfuscator_NET {
 				AddResourceToBeRemoved(info.Resource, "Encrypted resources");
 			AddModuleCctorInitCallToBeRemoved(resourceResolver.InitMethod);
 
-			resourceMethodsRestorer = new ResourceMethodsRestorer(module);
+			resourceMethodsRestorer = new ResourceMethodsRestorer(Module);
 			if ((Operations.RenamerFlags & (RenamerFlags.RenameTypes | RenamerFlags.RenameNamespaces)) != 0)
 				resourceMethodsRestorer.Find(DeobfuscatedFile, this);
 
@@ -194,9 +194,9 @@ namespace de4dot.code.deobfuscators.Eazfuscator_NET {
 			if (stringDecrypter.ValidStringDecrypterValue == null)
 				return;
 
-			var newType = module.UpdateRowId(new TypeDefUser(Guid.NewGuid().ToString("B"), module.CorLibTypes.Object.TypeDefOrRef));
-			module.Types.Add(newType);
-			var newMethod = module.UpdateRowId(new MethodDefUser("x", MethodSig.CreateStatic(module.CorLibTypes.Void), 0, MethodAttributes.Static | MethodAttributes.HideBySig));
+			var newType = Module.UpdateRowId(new TypeDefUser(Guid.NewGuid().ToString("B"), Module.CorLibTypes.Object.TypeDefOrRef));
+			Module.Types.Add(newType);
+			var newMethod = Module.UpdateRowId(new MethodDefUser("x", MethodSig.CreateStatic(Module.CorLibTypes.Void), 0, MethodAttributes.Static | MethodAttributes.HideBySig));
 			newType.Methods.Add(newMethod);
 			newMethod.Body = new CilBody();
 			newMethod.Body.MaxStack = 1;
@@ -205,7 +205,7 @@ namespace de4dot.code.deobfuscators.Eazfuscator_NET {
 			newMethod.Body.Instructions.Add(OpCodes.Pop.ToInstruction());
 			newMethod.Body.Instructions.Add(OpCodes.Ret.ToInstruction());
 
-			var cctor = module.GlobalType.FindOrCreateStaticConstructor();
+			var cctor = Module.GlobalType.FindOrCreateStaticConstructor();
 			var blocks = new Blocks(cctor);
 			var block = blocks.MethodBlocks.GetAllBlocks()[0];
 			block.Insert(0, OpCodes.Call.ToInstruction(newMethod));

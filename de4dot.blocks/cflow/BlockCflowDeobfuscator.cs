@@ -35,7 +35,7 @@ namespace de4dot.blocks.cflow {
 			this.block = block;
 			if (!block.LastInstr.IsConditionalBranch() && block.LastInstr.OpCode.Code != Code.Switch)
 				return false;
-			instructionEmulator.Initialize(blocks, allBlocks[0] == block);
+			instructionEmulator.Initialize(Blocks, AllBlocks[0] == block);
 
 			var instructions = block.Instructions;
 			if (instructions.Count == 0)
@@ -55,7 +55,7 @@ namespace de4dot.blocks.cflow {
 		}
 
 		void PopPushedArgs(int stackArgs) {
-			// Pop the arguments to the bcc instruction. The dead code remover will get rid of the
+			// Pop the arguments to the bcc instruction. The dead code remover will get _rid of the
 			// pop and any pushed arguments. Insert the pops just before the bcc instr.
 			for (int i = 0; i < stackArgs; i++)
 				block.Insert(block.Instructions.Count - 1, OpCodes.Pop.ToInstruction());

@@ -145,7 +145,7 @@ namespace de4dot.code.deobfuscators.dotNET_Reactor.v3 {
 			if (count != 0 || !NeedsPatching())
 				return false;
 
-			var fileData = ModuleBytes ?? DeobUtils.ReadModule(module);
+			var fileData = ModuleBytes ?? DeobUtils.ReadModule(Module);
 			if (!decrypterType.Patch(fileData))
 				return false;
 
@@ -238,9 +238,9 @@ namespace de4dot.code.deobfuscators.dotNET_Reactor.v3 {
 		}
 
 		protected override void ScanForObfuscator() {
-			decrypterType = new DecrypterType(module);
+			decrypterType = new DecrypterType(Module);
 			decrypterType.Find();
-			nativeLibSaver = new NativeLibSaver(module);
+			nativeLibSaver = new NativeLibSaver(Module);
 			nativeLibSaver.Find();
 			obfuscatorName = DetectVersion();
 			if (unpackedNativeFile)
@@ -264,7 +264,7 @@ namespace de4dot.code.deobfuscators.dotNET_Reactor.v3 {
 			});
 			DeobfuscatedFile.StringDecryptersAdded();
 
-			libAssemblyResolver = new LibAssemblyResolver(module);
+			libAssemblyResolver = new LibAssemblyResolver(Module);
 			libAssemblyResolver.Find(DeobfuscatedFile, this);
 
 			if (Operations.DecryptStrings == OpDecryptString.None)
@@ -304,7 +304,7 @@ namespace de4dot.code.deobfuscators.dotNET_Reactor.v3 {
 							DeobUtils.GetExtension(mod.Kind));
 			}
 			RemoveInitCall(libAssemblyResolver.InitMethod);
-			AddCallToBeRemoved(module.EntryPoint, libAssemblyResolver.InitMethod);
+			AddCallToBeRemoved(Module.EntryPoint, libAssemblyResolver.InitMethod);
 			AddTypeToBeRemoved(libAssemblyResolver.Type, "Assembly resolver type (library mode)");
 		}
 
@@ -319,7 +319,7 @@ namespace de4dot.code.deobfuscators.dotNET_Reactor.v3 {
 		public override void DeobfuscateEnd() {
 			RemoveInlinedMethods();
 			if (options.RestoreTypes)
-				new TypesRestorer(module).Deobfuscate();
+				new TypesRestorer(Module).Deobfuscate();
 
 			if (canRemoveDecrypterType && !IsTypeCalled(decrypterType.Type)) {
 				AddTypeToBeRemoved(decrypterType.Type, "Decrypter type");

@@ -157,23 +157,23 @@ namespace de4dot.code.deobfuscators.Babel_NET {
 
 		protected override void ScanForObfuscator() {
 			FindBabelAttribute();
-			var resourceDecrypterCreator = new ResourceDecrypterCreator(module, DeobfuscatedFile);
-			resourceResolver = new ResourceResolver(module, resourceDecrypterCreator.Create(), DeobfuscatedFile);
+			var resourceDecrypterCreator = new ResourceDecrypterCreator(Module, DeobfuscatedFile);
+			resourceResolver = new ResourceResolver(Module, resourceDecrypterCreator.Create(), DeobfuscatedFile);
 			resourceResolver.Find();
-			assemblyResolver = new AssemblyResolver(module, resourceDecrypterCreator.Create());
+			assemblyResolver = new AssemblyResolver(Module, resourceDecrypterCreator.Create());
 			assemblyResolver.Find();
-			stringDecrypter = new StringDecrypter(module, resourceDecrypterCreator.Create());
+			stringDecrypter = new StringDecrypter(Module, resourceDecrypterCreator.Create());
 			stringDecrypter.Find(DeobfuscatedFile);
-			constantsDecrypter = new ConstantsDecrypter(module, resourceDecrypterCreator.Create(), initializedDataCreator);
+			constantsDecrypter = new ConstantsDecrypter(Module, resourceDecrypterCreator.Create(), initializedDataCreator);
 			constantsDecrypter.Find();
-			proxyCallFixer = new ProxyCallFixer(module);
+			proxyCallFixer = new ProxyCallFixer(Module);
 			proxyCallFixer.FindDelegateCreator();
-			methodsDecrypter = new MethodsDecrypter(module, resourceDecrypterCreator.Create(), DeobfuscatedFile.DeobfuscatorContext);
+			methodsDecrypter = new MethodsDecrypter(Module, resourceDecrypterCreator.Create(), DeobfuscatedFile.DeobfuscatorContext);
 			methodsDecrypter.Find();
 		}
 
 		void FindBabelAttribute() {
-			foreach (var type in module.Types) {
+			foreach (var type in Module.Types) {
 				if (type.FullName == "BabelAttribute" || type.FullName == "BabelObfuscatorAttribute") {
 					foundBabelAttribute = true;
 					CheckVersion(type);
@@ -291,7 +291,7 @@ namespace de4dot.code.deobfuscators.Babel_NET {
 		void RemoveInlinedMethods() {
 			if (!options.InlineMethods || !options.RemoveInlinedMethods)
 				return;
-			RemoveInlinedMethods(BabelMethodCallInliner.Find(module, staticStringInliner.Methods));
+			RemoveInlinedMethods(BabelMethodCallInliner.Find(Module, staticStringInliner.Methods));
 		}
 
 		public override IEnumerable<int> GetStringDecrypterMethods() {

@@ -81,12 +81,12 @@ namespace de4dot.code.deobfuscators.Xenocode {
 
 		protected override void ScanForObfuscator() {
 			FindXenocodeAttribute();
-			stringDecrypter = new StringDecrypter(module);
+			stringDecrypter = new StringDecrypter(Module);
 			stringDecrypter.Find();
 		}
 
 		void FindXenocodeAttribute() {
-			foreach (var type in module.Types) {
+			foreach (var type in Module.Types) {
 				switch (type.FullName) {
 				case "Xenocode.Client.Attributes.AssemblyAttributes.ProcessedByXenocode":
 				case "Xenocode.Client.Attributes.AssemblyAttributes.SuppressDisassembly":
@@ -112,13 +112,13 @@ namespace de4dot.code.deobfuscators.Xenocode {
 			var obfType = FindTypeWithThousandsOfMethods();
 			if (obfType != null)
 				AddTypeToBeRemoved(obfType, "Obfuscator type with thousands of empty methods");
-			RemoveInvalidAttributes(module);
-			RemoveInvalidAttributes(module.Assembly);
+			RemoveInvalidAttributes(Module);
+			RemoveInvalidAttributes(Module.Assembly);
 			base.DeobfuscateEnd();
 		}
 
 		TypeDef FindTypeWithThousandsOfMethods() {
-			foreach (var type in module.Types) {
+			foreach (var type in Module.Types) {
 				if (IsTypeWithThousandsOfMethods(type))
 					return type;
 			}

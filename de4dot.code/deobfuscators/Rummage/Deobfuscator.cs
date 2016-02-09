@@ -80,7 +80,7 @@ namespace de4dot.code.deobfuscators.Rummage {
 		}
 
 		protected override void ScanForObfuscator() {
-			stringDecrypter = new StringDecrypter(module);
+			stringDecrypter = new StringDecrypter(Module);
 			stringDecrypter.Find();
 			DetectVersion();
 		}

@@ -41,7 +41,7 @@ namespace de4dot.code.deobfuscators {
 		}
 
 		OptionsBase optionsBase;
-		protected ModuleDefMD module;
+		protected ModuleDefMD Module;
 		protected StaticStringInliner staticStringInliner = new StaticStringInliner();
 		IList<RemoveInfo<TypeDef>> typesToRemove = new List<RemoveInfo<TypeDef>>();
 		IList<RemoveInfo<MethodDef>> methodsToRemove = new List<RemoveInfo<MethodDef>>();
@@ -130,7 +130,7 @@ namespace de4dot.code.deobfuscators {
 		}
 
 		protected void SetModule(ModuleDefMD module) {
-			this.module = module;
+			this.Module = module;
 			initializedDataCreator = new InitializedDataCreator(module);
 		}
 
@@ -184,8 +184,8 @@ namespace de4dot.code.deobfuscators {
 
 		public virtual void DeobfuscateEnd() {
 			// Make sure the TypeDefCache isn't enabled while we modify types or remove stuff
-			bool cacheState = module.EnableTypeDefFindCache;
-			module.EnableTypeDefFindCache = false;
+			bool cacheState = Module.EnableTypeDefFindCache;
+			Module.EnableTypeDefFindCache = false;
 
 			if (CanRemoveTypes) {
 				InitializeObjectsToKeepFromVTableFixups();
@@ -204,11 +204,11 @@ namespace de4dot.code.deobfuscators {
 			RestoreBaseType();
 			FixMDHeaderVersion();
 
-			module.EnableTypeDefFindCache = cacheState;
+			Module.EnableTypeDefFindCache = cacheState;
 		}
 
 		void InitializeObjectsToKeepFromVTableFixups() {
-			var fixups = module.VTableFixups;
+			var fixups = Module.VTableFixups;
 			if (fixups == null || fixups.VTables.Count == 0)
 				return;
 
@@ -232,30 +232,30 @@ namespace de4dot.code.deobfuscators {
 		}
 
 		void RestoreBaseType() {
-			var moduleType = DotNetUtils.GetModuleType(module);
-			foreach (var type in module.GetTypes()) {
+			var moduleType = DotNetUtils.GetModuleType(Module);
+			foreach (var type in Module.GetTypes()) {
 				if (!IsTypeWithInvalidBaseType(moduleType, type))
 					continue;
-				var corSig = module.CorLibTypes.GetCorLibTypeSig(type);
+				var corSig = Module.CorLibTypes.GetCorLibTypeSig(type);
 				if (corSig != null && corSig.ElementType == ElementType.Object)
 					continue;
 				Logger.v("Adding System.Object as base type: {0} ({1:X8})",
 							Utils.RemoveNewlines(type),
 							type.MDToken.ToInt32());
-				type.BaseType = module.CorLibTypes.Object.TypeDefOrRef;
+				type.BaseType = Module.CorLibTypes.Object.TypeDefOrRef;
 			}
 		}
 
 		void FixMDHeaderVersion() {
 			// Version 1.1 supports generics but it's a little different. Most tools
 			// will have a problem reading the MD tables, so switch to the standard v2.0.
-			if (module.TablesHeaderVersion == 0x0101)
-				module.TablesHeaderVersion = 0x0200;
+			if (Module.TablesHeaderVersion == 0x0101)
+				Module.TablesHeaderVersion = 0x0200;
 		}
 
 		void RemoveTypesWithInvalidBaseTypes() {
-			var moduleType = DotNetUtils.GetModuleType(module);
-			foreach (var type in module.GetTypes()) {
+			var moduleType = DotNetUtils.GetModuleType(Module);
+			foreach (var type in Module.GetTypes()) {
 				if (!IsTypeWithInvalidBaseType(moduleType, type) || MustKeepObject(type))
 					continue;
 				AddTypeToBeRemoved(type, "Invalid type with no base type (anti-reflection)");
@@ -263,7 +263,7 @@ namespace de4dot.code.deobfuscators {
 		}
 
 		protected void FixEnumTypes() {
-			foreach (var type in module.GetTypes()) {
+			foreach (var type in Module.GetTypes()) {
 				if (!type.IsEnum)
 					continue;
 				foreach (var field in type.Fields) {
@@ -276,7 +276,7 @@ namespace de4dot.code.deobfuscators {
 		}
 
 		protected void FixInterfaces() {
-			foreach (var type in module.GetTypes()) {
+			foreach (var type in Module.GetTypes()) {
 				if (!type.IsInterface)
 					continue;
 				type.IsSealed = false;
@@ -369,7 +369,7 @@ namespace de4dot.code.deobfuscators {
 		}
 
 		public void AddModuleCctorInitCallToBeRemoved(MethodDef methodToBeRemoved) {
-			methodCallRemover.Add(DotNetUtils.GetModuleTypeCctor(module), methodToBeRemoved);
+			methodCallRemover.Add(DotNetUtils.GetModuleTypeCctor(Module), methodToBeRemoved);
 		}
 
 		public void AddCtorInitCallToBeRemoved(MethodDef methodToBeRemoved) {
@@ -433,7 +433,7 @@ namespace de4dot.code.deobfuscators {
 
 		void DeleteEmptyCctors() {
 			var emptyCctorsToRemove = new List<MethodDef>();
-			foreach (var type in module.GetTypes()) {
+			foreach (var type in Module.GetTypes()) {
 				var cctor = type.FindStaticConstructor();
 				if (cctor != null && DotNetUtils.IsEmpty(cctor) && !MustKeepObject(cctor))
 					emptyCctorsToRemove.Add(cctor);
@@ -504,13 +504,13 @@ namespace de4dot.code.deobfuscators {
 		}
 
 		void DeleteTypes() {
-			var types = module.Types;
+			var types = Module.Types;
 			if (types == null || typesToRemove.Count == 0)
 				return;
 
 			Logger.v("Removing types");
 			Logger.Instance.Indent();
-			var moduleType = DotNetUtils.GetModuleType(module);
+			var moduleType = DotNetUtils.GetModuleType(Module);
 			foreach (var info in typesToRemove) {
 				var typeDef = info.obj;
 				if (typeDef == null || typeDef == moduleType || MustKeepObject(typeDef))
@@ -535,9 +535,9 @@ namespace de4dot.code.deobfuscators {
 
 			Logger.v("Removing custom attributes");
 			Logger.Instance.Indent();
-			DeleteCustomAttributes(module.CustomAttributes);
-			if (module.Assembly != null)
-				DeleteCustomAttributes(module.Assembly.CustomAttributes);
+			DeleteCustomAttributes(Module.CustomAttributes);
+			if (Module.Assembly != null)
+				DeleteCustomAttributes(Module.Assembly.CustomAttributes);
 			Logger.Instance.DeIndent();
 		}
 
@@ -565,9 +565,9 @@ namespace de4dot.code.deobfuscators {
 		void DeleteOtherAttributes() {
 			Logger.v("Removing other attributes");
 			Logger.Instance.Indent();
-			DeleteOtherAttributes(module.CustomAttributes);
-			if (module.Assembly != null)
-				DeleteOtherAttributes(module.Assembly.CustomAttributes);
+			DeleteOtherAttributes(Module.CustomAttributes);
+			if (Module.Assembly != null)
+				DeleteOtherAttributes(Module.Assembly.CustomAttributes);
 			Logger.Instance.DeIndent();
 		}
 
@@ -582,7 +582,7 @@ namespace de4dot.code.deobfuscators {
 		}
 
 		void DeleteDllResources() {
-			if (!module.HasResources || resourcesToRemove.Count == 0)
+			if (!Module.HasResources || resourcesToRemove.Count == 0)
 				return;
 
 			Logger.v("Removing resources");
@@ -591,14 +591,14 @@ namespace de4dot.code.deobfuscators {
 				var resource = info.obj;
 				if (resource == null || MustKeepObject(resource))
 					continue;
-				if (module.Resources.Remove(resource))
+				if (Module.Resources.Remove(resource))
 					Logger.v("Removed resource {0} (reason: {1})", Utils.ToCsharpString(resource.Name), info.reason);
 			}
 			Logger.Instance.DeIndent();
 		}
 
 		protected void SetInitLocals() {
-			foreach (var type in module.GetTypes()) {
+			foreach (var type in Module.GetTypes()) {
 				foreach (var method in type.Methods) {
 					if (IsFatHeader(method))
 						method.Body.InitLocals = true;
@@ -646,11 +646,11 @@ namespace de4dot.code.deobfuscators {
 		}
 
 		protected void AddResources(string reason) {
-			if (!module.HasResources)
+			if (!Module.HasResources)
 				return;
 
 			foreach (var name in namesToPossiblyRemove) {
-				foreach (var resource in module.Resources) {
+				foreach (var resource in Module.Resources) {
 					if (resource.Name == name) {
 						AddResourceToBeRemoved(resource, reason);
 						break;
@@ -678,21 +678,21 @@ namespace de4dot.code.deobfuscators {
 		}
 
 		protected Resource GetResource(IEnumerable<string> strings) {
-			return DotNetUtils.GetResource(module, strings);
+			return DotNetUtils.GetResource(Module, strings);
 		}
 
 		protected CustomAttribute GetAssemblyAttribute(IType attr) {
-			if (module.Assembly == null)
+			if (Module.Assembly == null)
 				return null;
-			return module.Assembly.CustomAttributes.Find(attr);
+			return Module.Assembly.CustomAttributes.Find(attr);
 		}
 
 		protected CustomAttribute GetModuleAttribute(IType attr) {
-			return module.CustomAttributes.Find(attr);
+			return Module.CustomAttributes.Find(attr);
 		}
 
 		protected bool HasMetadataStream(string name) {
-			foreach (var stream in module.MetaData.AllStreams) {
+			foreach (var stream in Module.MetaData.AllStreams) {
 				if (stream.Name == name)
 					return true;
 			}
@@ -766,11 +766,11 @@ namespace de4dot.code.deobfuscators {
 		}
 
 		protected void FindAndRemoveInlinedMethods() {
-			RemoveInlinedMethods(InlinedMethodsFinder.Find(module));
+			RemoveInlinedMethods(InlinedMethodsFinder.Find(Module));
 		}
 
 		protected void RemoveInlinedMethods(List<MethodDef> inlinedMethods) {
-			AddMethodsToBeRemoved(new UnusedMethodsFinder(module, inlinedMethods, GetRemovedMethods()).Find(), "Inlined method");
+			AddMethodsToBeRemoved(new UnusedMethodsFinder(Module, inlinedMethods, GetRemovedMethods()).Find(), "Inlined method");
 		}
 
 		protected MethodCollection GetRemovedMethods() {
@@ -789,7 +789,7 @@ namespace de4dot.code.deobfuscators {
 
 			var removedMethods = GetRemovedMethods();
 
-			foreach (var type in module.GetTypes()) {
+			foreach (var type in Module.GetTypes()) {
 				foreach (var method in type.Methods) {
 					if (method.Body == null)
 						continue;
@@ -821,9 +821,9 @@ namespace de4dot.code.deobfuscators {
 		}
 
 		protected bool HasNativeMethods() {
-			if (module.VTableFixups != null)
+			if (Module.VTableFixups != null)
 				return true;
-			foreach (var type in module.GetTypes()) {
+			foreach (var type in Module.GetTypes()) {
 				foreach (var method in type.Methods) {
 					var mb = method.MethodBody;
 					if (mb == null)

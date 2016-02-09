@@ -85,13 +85,13 @@ namespace de4dot.code.deobfuscators.Dotfuscator {
 		}
 
 		protected override void ScanForObfuscator() {
-			stringDecrypter = new StringDecrypter(module);
+			stringDecrypter = new StringDecrypter(Module);
 			stringDecrypter.Find(DeobfuscatedFile);
 			FindDotfuscatorAttribute();
 		}
 
 		void FindDotfuscatorAttribute() {
-			foreach (var type in module.Types) {
+			foreach (var type in Module.Types) {
 				if (type.FullName == "DotfuscatorAttribute") {
 					foundDotfuscatorAttribute = true;
 					AddAttributeToBeRemoved(type, "Obfuscator attribute");

@@ -83,14 +83,14 @@ namespace de4dot.code.deobfuscators.Skater_NET {
 		}
 
 		protected override void ScanForObfuscator() {
-			stringDecrypter = new StringDecrypter(module);
+			stringDecrypter = new StringDecrypter(Module);
 
 			if (HasAssemblyRef("Microsoft.VisualBasic"))
 				stringDecrypter.Find();
 		}
 
 		bool HasAssemblyRef(string name) {
-			foreach (var asmRef in module.GetAssemblyRefs()) {
+			foreach (var asmRef in Module.GetAssemblyRefs()) {
 				if (asmRef.Name == name)
 					return true;
 			}
@@ -100,7 +100,7 @@ namespace de4dot.code.deobfuscators.Skater_NET {
 		public override void DeobfuscateBegin() {
 			base.DeobfuscateBegin();
 
-			enumClassFinder = new EnumClassFinder(module);
+			enumClassFinder = new EnumClassFinder(Module);
 
 			stringDecrypter.Initialize(DeobfuscatedFile);
 		}

@@ -159,13 +159,13 @@ namespace de4dot.code.deobfuscators.DeepSea {
 
 		protected override void ScanForObfuscator() {
 			staticStringInliner.UseUnknownArgs = true;
-			arrayBlockState = new ArrayBlockState(module);
+			arrayBlockState = new ArrayBlockState(Module);
 			arrayBlockState.Initialize(DeobfuscatedFile);
-			stringDecrypter = new StringDecrypter(module);
+			stringDecrypter = new StringDecrypter(Module);
 			stringDecrypter.Find(DeobfuscatedFile);
-			resourceResolver = new ResourceResolver(module, DeobfuscatedFile, this);
+			resourceResolver = new ResourceResolver(Module, DeobfuscatedFile, this);
 			resourceResolver.Find();
-			assemblyResolver = new AssemblyResolver(module, DeobfuscatedFile, this);
+			assemblyResolver = new AssemblyResolver(Module, DeobfuscatedFile, this);
 			assemblyResolver.Find();
 			obfuscatorName = DetectVersion();
 		}
@@ -189,7 +189,7 @@ namespace de4dot.code.deobfuscators.DeepSea {
 			const int MIN_FOUND_PROXIES = 10;
 
 			int foundProxies = 0, checkedMethods = 0;
-			foreach (var type in module.GetTypes()) {
+			foreach (var type in Module.GetTypes()) {
 				foreach (var method in type.Methods) {
 					if (foundProxies >= MIN_FOUND_PROXIES)
 						goto done;
@@ -210,7 +210,7 @@ done:
 			base.DeobfuscateBegin();
 
 			if (options.RestoreFields) {
-				fieldsRestorer = new FieldsRestorer(module);
+				fieldsRestorer = new FieldsRestorer(Module);
 				fieldsRestorer.Initialize();
 			}
 
@@ -237,7 +237,7 @@ done:
 				return;
 			AddResourceToBeRemoved(rsrc, "Encrypted resources");
 			AddCctorInitCallToBeRemoved(resourceResolver.InitMethod);
-			AddCallToBeRemoved(module.EntryPoint, resourceResolver.InitMethod);
+			AddCallToBeRemoved(Module.EntryPoint, resourceResolver.InitMethod);
 			AddMethodToBeRemoved(resourceResolver.InitMethod, "Resource resolver init method");
 			AddMethodToBeRemoved(resourceResolver.InitMethod2, "Resource resolver init method #2");
 			AddMethodToBeRemoved(resourceResolver.HandlerMethod, "Resource resolver handler method");
@@ -254,7 +254,7 @@ done:
 				AddResourceToBeRemoved(info.resource, string.Format("Embedded assembly: {0}", info.fullName));
 			}
 			AddCctorInitCallToBeRemoved(assemblyResolver.InitMethod);
-			AddCallToBeRemoved(module.EntryPoint, assemblyResolver.InitMethod);
+			AddCallToBeRemoved(Module.EntryPoint, assemblyResolver.InitMethod);
 			AddMethodToBeRemoved(assemblyResolver.InitMethod, "Assembly resolver init method");
 			AddMethodToBeRemoved(assemblyResolver.HandlerMethod, "Assembly resolver handler method");
 			AddMethodToBeRemoved(assemblyResolver.DecryptMethod, "Assembly resolver decrypt method");
@@ -287,7 +287,7 @@ done:
 		void RemoveInlinedMethods() {
 			if (!options.InlineMethods || !options.RemoveInlinedMethods)
 				return;
-			RemoveInlinedMethods(DsInlinedMethodsFinder.Find(module, staticStringInliner.Methods));
+			RemoveInlinedMethods(DsInlinedMethodsFinder.Find(Module, staticStringInliner.Methods));
 		}
 
 		public override IEnumerable<int> GetStringDecrypterMethods() {

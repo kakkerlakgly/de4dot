@@ -151,7 +151,7 @@ namespace de4dot.code.deobfuscators.Confuser {
 
 		protected override void ScanForObfuscator() {
 			RemoveObfuscatorAttribute();
-			jitMethodsDecrypter = new JitMethodsDecrypter(module, DeobfuscatedFile);
+			jitMethodsDecrypter = new JitMethodsDecrypter(Module, DeobfuscatedFile);
 			try {
 				jitMethodsDecrypter.Find();
 			}
@@ -161,7 +161,7 @@ namespace de4dot.code.deobfuscators.Confuser {
 				InitializeObfuscatorName();
 				return;
 			}
-			memoryMethodsDecrypter = new MemoryMethodsDecrypter(module, DeobfuscatedFile);
+			memoryMethodsDecrypter = new MemoryMethodsDecrypter(Module, DeobfuscatedFile);
 			memoryMethodsDecrypter.Find();
 			if (memoryMethodsDecrypter.Detected) {
 				InitializeObfuscatorName();
@@ -171,12 +171,12 @@ namespace de4dot.code.deobfuscators.Confuser {
 		}
 
 		void InitializeTheRest(Deobfuscator oldOne) {
-			resourceDecrypter = new ResourceDecrypter(module, DeobfuscatedFile);
+			resourceDecrypter = new ResourceDecrypter(Module, DeobfuscatedFile);
 			resourceDecrypter.Find();
 
-			constantsDecrypterV18 = new ConstantsDecrypterV18(module, GetFileData(), DeobfuscatedFile);
-			constantsDecrypterV17 = new ConstantsDecrypterV17(module, GetFileData(), DeobfuscatedFile);
-			constantsDecrypterV15 = new ConstantsDecrypterV15(module, GetFileData(), DeobfuscatedFile);
+			constantsDecrypterV18 = new ConstantsDecrypterV18(Module, GetFileData(), DeobfuscatedFile);
+			constantsDecrypterV17 = new ConstantsDecrypterV17(Module, GetFileData(), DeobfuscatedFile);
+			constantsDecrypterV15 = new ConstantsDecrypterV15(Module, GetFileData(), DeobfuscatedFile);
 			do {
 				constantsDecrypterV18.Find();
 				if (constantsDecrypterV18.Detected) {
@@ -195,16 +195,16 @@ namespace de4dot.code.deobfuscators.Confuser {
 				}
 			} while (false);
 
-			proxyCallFixer = new ProxyCallFixer(module, GetFileData());
+			proxyCallFixer = new ProxyCallFixer(Module, GetFileData());
 			proxyCallFixer.FindDelegateCreator(DeobfuscatedFile);
-			antiDebugger = new AntiDebugger(module);
+			antiDebugger = new AntiDebugger(Module);
 			antiDebugger.Find();
-			antiDumping = new AntiDumping(module);
+			antiDumping = new AntiDumping(Module);
 			antiDumping.Find(DeobfuscatedFile);
-			stringDecrypter = new StringDecrypter(module);
+			stringDecrypter = new StringDecrypter(Module);
 			stringDecrypter.Find(DeobfuscatedFile);
 			InitializeStringDecrypter();
-			unpacker = new Unpacker(module, oldOne == null ? null : oldOne.unpacker);
+			unpacker = new Unpacker(Module, oldOne == null ? null : oldOne.unpacker);
 			unpacker.Find(DeobfuscatedFile, this);
 			InitializeObfuscatorName();
 		}
@@ -254,7 +254,7 @@ namespace de4dot.code.deobfuscators.Confuser {
 		byte[] GetFileData() {
 			if (ModuleBytes != null)
 				return ModuleBytes;
-			return ModuleBytes = DeobUtils.ReadModule(module);
+			return ModuleBytes = DeobUtils.ReadModule(Module);
 		}
 
 		[Flags]
@@ -383,7 +383,7 @@ namespace de4dot.code.deobfuscators.Confuser {
 			if (options.RemoveAntiDebug && antiDebugger != null) {
 				AddModuleCctorInitCallToBeRemoved(antiDebugger.InitMethod);
 				AddTypeToBeRemoved(antiDebugger.Type, "Anti debugger type");
-				if (antiDebugger.Type == DotNetUtils.GetModuleType(module))
+				if (antiDebugger.Type == DotNetUtils.GetModuleType(Module))
 					AddMethodToBeRemoved(antiDebugger.InitMethod, "Anti debugger method");
 			}
 
@@ -403,13 +403,13 @@ namespace de4dot.code.deobfuscators.Confuser {
 
 		void DumpEmbeddedAssemblies() {
 			if (mainAsmInfo != null) {
-				var asm = module.Assembly;
-				var name = (asm == null ? module.Name : asm.Name).String;
+				var asm = Module.Assembly;
+				var name = (asm == null ? Module.Name : asm.Name).String;
 				DeobfuscatedFile.CreateAssemblyFile(mainAsmInfo.data, name + "_real", mainAsmInfo.extension);
 				AddResourceToBeRemoved(mainAsmInfo.resource, string.Format("Embedded assembly: {0}", mainAsmInfo.asmFullName));
 			}
 			foreach (var info in embeddedAssemblyInfos) {
-				if (module.Assembly == null || info.asmFullName != module.Assembly.FullName)
+				if (Module.Assembly == null || info.asmFullName != Module.Assembly.FullName)
 					DeobfuscatedFile.CreateAssemblyFile(info.data, info.asmSimpleName, info.extension);
 				AddResourceToBeRemoved(info.resource, string.Format("Embedded assembly: {0}", info.asmFullName));
 			}
@@ -417,7 +417,7 @@ namespace de4dot.code.deobfuscators.Confuser {
 		}
 
 		void RemoveInvalidResources() {
-			foreach (var rsrc in module.Resources) {
+			foreach (var rsrc in Module.Resources) {
 				var resource = rsrc as EmbeddedResource;
 				if (resource == null)
 					continue;
@@ -500,7 +500,7 @@ namespace de4dot.code.deobfuscators.Confuser {
 			doubleValueInliner.RemoveUnbox = true;
 			DeobfuscatedFile.StringDecryptersAdded();
 			AddFieldsToBeRemoved(constDecrypter.Fields, "Constants decrypter field");
-			var moduleType = DotNetUtils.GetModuleType(module);
+			var moduleType = DotNetUtils.GetModuleType(Module);
 			foreach (var info in constDecrypter.DecrypterInfos) {
 				if (info.decryptMethod.DeclaringType == moduleType)
 					AddMethodToBeRemoved(info.decryptMethod, "Constants decrypter method");
@@ -522,7 +522,7 @@ namespace de4dot.code.deobfuscators.Confuser {
 		}
 
 		void RemoveObfuscatorAttribute() {
-			foreach (var type in module.Types) {
+			foreach (var type in Module.Types) {
 				if (type.FullName == "ConfusedByAttribute") {
 					SetConfuserVersion(type);
 					AddAttributeToBeRemoved(type, "Obfuscator attribute");
@@ -574,7 +574,7 @@ namespace de4dot.code.deobfuscators.Confuser {
 				}
 			}
 
-			module.IsILOnly = true;
+			Module.IsILOnly = true;
 
 			base.DeobfuscateEnd();
 		}

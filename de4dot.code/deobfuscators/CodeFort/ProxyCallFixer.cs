@@ -93,7 +93,7 @@ namespace de4dot.code.deobfuscators.CodeFort {
 				return null;
 			int rid = ldci4.GetLdcI4Value();
 			if (cctor.DeclaringType.Rid != rid)
-				throw new ApplicationException("Invalid rid");
+				throw new ApplicationException("Invalid _rid");
 			return rid;
 		}
 

@@ -138,17 +138,17 @@ namespace de4dot.code.deobfuscators.SmartAssembly {
 
 		protected override void ScanForObfuscator() {
 			FindSmartAssemblyAttributes();
-			memoryManagerInfo = new MemoryManagerInfo(module);
+			memoryManagerInfo = new MemoryManagerInfo(Module);
 			memoryManagerInfo.Find();
-			proxyCallFixer = new ProxyCallFixer(module, DeobfuscatedFile);
-			proxyCallFixer.FindDelegateCreator(module);
+			proxyCallFixer = new ProxyCallFixer(Module, DeobfuscatedFile);
+			proxyCallFixer.FindDelegateCreator(Module);
 
 			if (!foundVersion)
 				GuessVersion();
 		}
 
 		void FindSmartAssemblyAttributes() {
-			foreach (var type in module.Types) {
+			foreach (var type in Module.Types) {
 				if (Utils.StartsWith(type.FullName, "SmartAssembly.Attributes.PoweredByAttribute", StringComparison.Ordinal)) {
 					foundSmartAssemblyAttribute = true;
 					AddAttributeToBeRemoved(type, "Obfuscator attribute");
@@ -231,7 +231,7 @@ namespace de4dot.code.deobfuscators.SmartAssembly {
 		TypeDef GetTypeIdAttribute() {
 			Dictionary<TypeDef, bool> attrs = null;
 			int counter = 0;
-			foreach (var type in module.GetTypes()) {
+			foreach (var type in Module.GetTypes()) {
 				counter++;
 				var cattrs = type.CustomAttributes;
 				if (cattrs.Count == 0)
@@ -264,13 +264,13 @@ namespace de4dot.code.deobfuscators.SmartAssembly {
 		}
 
 		bool HasModuleCctor() {
-			return DotNetUtils.GetModuleTypeCctor(module) != null;
+			return DotNetUtils.GetModuleTypeCctor(Module) != null;
 		}
 
 		bool HasEmptyClassesInEveryNamespace() {
 			var namespaces = new Dictionary<string, int>(StringComparer.Ordinal);
-			var moduleType = DotNetUtils.GetModuleType(module);
-			foreach (var type in module.Types) {
+			var moduleType = DotNetUtils.GetModuleType(Module);
+			foreach (var type in Module.Types) {
 				if (type == moduleType)
 					continue;
 				var ns = type.Namespace.String;
@@ -291,13 +291,13 @@ namespace de4dot.code.deobfuscators.SmartAssembly {
 		public override void DeobfuscateBegin() {
 			base.DeobfuscateBegin();
 
-			tamperProtectionRemover = new TamperProtectionRemover(module);
-			automatedErrorReportingFinder = new AutomatedErrorReportingFinder(module);
+			tamperProtectionRemover = new TamperProtectionRemover(Module);
+			automatedErrorReportingFinder = new AutomatedErrorReportingFinder(Module);
 			automatedErrorReportingFinder.find();
 
 			if (options.RemoveMemoryManager) {
 				AddModuleCctorInitCallToBeRemoved(memoryManagerInfo.CctorInitMethod);
-				AddCallToBeRemoved(module.EntryPoint, memoryManagerInfo.CctorInitMethod);
+				AddCallToBeRemoved(Module.EntryPoint, memoryManagerInfo.CctorInitMethod);
 			}
 
 			InitDecrypters();
@@ -305,23 +305,23 @@ namespace de4dot.code.deobfuscators.SmartAssembly {
 		}
 
 		void InitDecrypters() {
-			assemblyResolverInfo = new AssemblyResolverInfo(module, DeobfuscatedFile, this);
+			assemblyResolverInfo = new AssemblyResolverInfo(Module, DeobfuscatedFile, this);
 			assemblyResolverInfo.FindTypes();
-			resourceDecrypterInfo = new ResourceDecrypterInfo(module, assemblyResolverInfo.SimpleZipTypeMethod, DeobfuscatedFile);
-			resourceResolverInfo = new ResourceResolverInfo(module, DeobfuscatedFile, this, assemblyResolverInfo);
+			resourceDecrypterInfo = new ResourceDecrypterInfo(Module, assemblyResolverInfo.SimpleZipTypeMethod, DeobfuscatedFile);
+			resourceResolverInfo = new ResourceResolverInfo(Module, DeobfuscatedFile, this, assemblyResolverInfo);
 			resourceResolverInfo.FindTypes();
 			resourceDecrypter = new ResourceDecrypter(resourceDecrypterInfo);
 			assemblyResolver = new AssemblyResolver(resourceDecrypter, assemblyResolverInfo);
-			resourceResolver = new ResourceResolver(module, assemblyResolver, resourceResolverInfo);
+			resourceResolver = new ResourceResolver(Module, assemblyResolver, resourceResolverInfo);
 
 			InitStringDecrypterInfos();
 			assemblyResolverInfo.FindTypes();
 			resourceResolverInfo.FindTypes();
 
 			AddModuleCctorInitCallToBeRemoved(assemblyResolverInfo.CallResolverMethod);
-			AddCallToBeRemoved(module.EntryPoint, assemblyResolverInfo.CallResolverMethod);
+			AddCallToBeRemoved(Module.EntryPoint, assemblyResolverInfo.CallResolverMethod);
 			AddModuleCctorInitCallToBeRemoved(resourceResolverInfo.CallResolverMethod);
-			AddCallToBeRemoved(module.EntryPoint, resourceResolverInfo.CallResolverMethod);
+			AddCallToBeRemoved(Module.EntryPoint, resourceResolverInfo.CallResolverMethod);
 
 			resourceDecrypterInfo.SetSimpleZipType(GetGlobalSimpleZipTypeMethod(), DeobfuscatedFile);
 
@@ -361,10 +361,10 @@ namespace de4dot.code.deobfuscators.SmartAssembly {
 		}
 
 		void InitStringDecrypterInfos() {
-			var stringEncoderClassFinder = new StringEncoderClassFinder(module, DeobfuscatedFile);
+			var stringEncoderClassFinder = new StringEncoderClassFinder(Module, DeobfuscatedFile);
 			stringEncoderClassFinder.Find();
 			foreach (var info in stringEncoderClassFinder.StringsEncoderInfos) {
-				var sinfo = new StringDecrypterInfo(module, info.StringDecrypterClass) {
+				var sinfo = new StringDecrypterInfo(Module, info.StringDecrypterClass) {
 					GetStringDelegate = info.GetStringDelegate,
 					StringsType = info.StringsType,
 					CreateStringDelegateMethod = info.CreateStringDelegateMethod,
@@ -417,7 +417,7 @@ namespace de4dot.code.deobfuscators.SmartAssembly {
 			if (decrypter.CanDecrypt) {
 				var invokeMethod = info.GetStringDelegate == null ? null : info.GetStringDelegate.FindMethod("Invoke");
 				staticStringInliner.Add(invokeMethod, (method, gim, args) => {
-					var fieldDef = DotNetUtils.GetField(module, (IField)args[0]);
+					var fieldDef = DotNetUtils.GetField(Module, (IField)args[0]);
 					return decrypter.Decrypt(fieldDef.MDToken.ToInt32(), (int)args[1]);
 				});
 				staticStringInliner.Add(info.StringDecrypterMethod, (method, gim, args) => {
@@ -452,7 +452,7 @@ namespace de4dot.code.deobfuscators.SmartAssembly {
 				return null;
 
 			TypeDef bigType = null;
-			foreach (var type in module.Types) {
+			foreach (var type in Module.Types) {
 				if (IsBigType(type)) {
 					if (bigType == null || type.Methods.Count > bigType.Methods.Count)
 						bigType = type;

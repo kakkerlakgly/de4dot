@@ -100,13 +100,13 @@ namespace de4dot.code.deobfuscators.CodeVeil {
 
 		protected override void ScanForObfuscator() {
 			FindKillType();
-			mainType = new MainType(module);
+			mainType = new MainType(Module);
 			mainType.Find();
-			proxyCallFixer = new ProxyCallFixer(module, mainType);
+			proxyCallFixer = new ProxyCallFixer(Module, mainType);
 			proxyCallFixer.FindDelegateCreator();
 			methodsDecrypter = new MethodsDecrypter(mainType);
 			methodsDecrypter.Find();
-			stringDecrypter = new StringDecrypter(module, mainType);
+			stringDecrypter = new StringDecrypter(Module, mainType);
 			stringDecrypter.Find();
 			var version = DetectVersion();
 			if (!string.IsNullOrEmpty(version))
@@ -140,7 +140,7 @@ namespace de4dot.code.deobfuscators.CodeVeil {
 		}
 
 		void FindKillType() {
-			foreach (var type in module.Types) {
+			foreach (var type in Module.Types) {
 				if (type.FullName == "____KILL") {
 					killType = type;
 					break;
@@ -152,7 +152,7 @@ namespace de4dot.code.deobfuscators.CodeVeil {
 			if (count != 0 || !methodsDecrypter.Detected)
 				return false;
 
-			var fileData = DeobUtils.ReadModule(module);
+			var fileData = DeobUtils.ReadModule(Module);
 			if (!methodsDecrypter.Decrypt(fileData, ref dumpedMethods))
 				return false;
 
@@ -192,7 +192,7 @@ namespace de4dot.code.deobfuscators.CodeVeil {
 				AddCallToBeRemoved(mainType.GetInitStringDecrypterMethod(stringDecrypter.InitMethod), stringDecrypter.InitMethod);
 			}
 
-			assemblyResolver = new AssemblyResolver(module);
+			assemblyResolver = new AssemblyResolver(Module);
 			assemblyResolver.Initialize();
 			DumpEmbeddedAssemblies();
 
@@ -201,7 +201,7 @@ namespace de4dot.code.deobfuscators.CodeVeil {
 			proxyCallFixer.Initialize();
 			proxyCallFixer.Find();
 
-			resourceDecrypter = new ResourceDecrypter(module);
+			resourceDecrypter = new ResourceDecrypter(Module);
 			resourceDecrypter.Initialize();
 			resourceDecrypter.Decrypt();
 			if (resourceDecrypter.CanRemoveTypes) {
@@ -215,7 +215,7 @@ namespace de4dot.code.deobfuscators.CodeVeil {
 		}
 
 		void RemoveTamperDetection() {
-			var tamperDetection = new TamperDetection(module, mainType);
+			var tamperDetection = new TamperDetection(Module, mainType);
 			tamperDetection.Initialize();
 			foreach (var tamperDetectionMethod in tamperDetection.Methods)
 				AddCctorInitCallToBeRemoved(tamperDetectionMethod);
@@ -270,7 +270,7 @@ namespace de4dot.code.deobfuscators.CodeVeil {
 				AddTypeToBeRemoved(proxyCallFixer.MethodInfoType, "Obfuscator proxy method MethodInfo type");
 			}
 
-			AddMethodsToBeRemoved(InvalidMethodsFinder.FindAll(module), "Anti-reflection method");
+			AddMethodsToBeRemoved(InvalidMethodsFinder.FindAll(Module), "Anti-reflection method");
 
 			base.DeobfuscateEnd();
 		}

@@ -132,14 +132,14 @@ namespace de4dot.code.deobfuscators.Spices_Net {
 		}
 
 		protected override void ScanForObfuscator() {
-			methodCallInliner = new SpicesMethodCallInliner(module);
-			stringDecrypter = new StringDecrypter(module);
+			methodCallInliner = new SpicesMethodCallInliner(Module);
+			stringDecrypter = new StringDecrypter(Module);
 			stringDecrypter.Find();
 			FindSpicesAttributes();
 		}
 
 		void FindSpicesAttributes() {
-			foreach (var type in module.Types) {
+			foreach (var type in Module.Types) {
 				switch (type.FullName) {
 				case "NineRays.Decompiler.NotDecompile":
 				case "NineRays.Obfuscator.Evaluation":
@@ -157,7 +157,7 @@ namespace de4dot.code.deobfuscators.Spices_Net {
 			methodCallInliner.Initialize(DeobfuscatedFile);
 
 			if (options.RestoreResourceNames) {
-				resourceNamesRestorer = new ResourceNamesRestorer(module);
+				resourceNamesRestorer = new ResourceNamesRestorer(Module);
 				resourceNamesRestorer.Find();
 			}
 
@@ -201,7 +201,7 @@ namespace de4dot.code.deobfuscators.Spices_Net {
 			if (!options.InlineMethods || !options.RemoveInlinedMethods)
 				return;
 
-			var unusedMethods = new UnusedMethodsFinder(module, methodCallInliner.GetInlinedMethods(), GetRemovedMethods()).Find();
+			var unusedMethods = new UnusedMethodsFinder(Module, methodCallInliner.GetInlinedMethods(), GetRemovedMethods()).Find();
 			var removedTypes = methodCallInliner.GetInlinedTypes(unusedMethods);
 
 			AddTypesToBeRemoved(removedTypes.GetKeys(), "Obfuscator methods type");

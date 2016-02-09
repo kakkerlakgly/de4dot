@@ -41,7 +41,7 @@ namespace de4dot.code.deobfuscators.DeepSea {
 		void InitLocalToInfo() {
 			localToInfo.Clear();
 
-			foreach (var block in blocks.MethodBlocks.GetAllBlocks()) {
+			foreach (var block in Blocks.MethodBlocks.GetAllBlocks()) {
 				var instrs = block.Instructions;
 				for (int i = 0; i < instrs.Count - 1; i++) {
 					var ldsfld = instrs[i];
@@ -54,7 +54,7 @@ namespace de4dot.code.deobfuscators.DeepSea {
 					var info = arrayBlockState.GetFieldInfo((IField)ldsfld.Operand);
 					if (info == null)
 						continue;
-					var local = stloc.Instruction.GetLocal(blocks.Locals);
+					var local = stloc.Instruction.GetLocal(Blocks.Locals);
 					if (local == null)
 						continue;
 
@@ -141,7 +141,7 @@ namespace de4dot.code.deobfuscators.DeepSea {
 			var ldloc = instrs[i];
 			if (!ldloc.IsLdloc())
 				return false;
-			var local = ldloc.Instruction.GetLocal(blocks.Locals);
+			var local = ldloc.Instruction.GetLocal(Blocks.Locals);
 			if (local == null)
 				return false;
 			ArrayBlockState.FieldInfo info;

@@ -141,7 +141,7 @@ namespace de4dot.code.deobfuscators.MPRESS {
 			new MethodInfo("System.Int32", "(System.String[])"),
 		};
 		Version DetectVersion() {
-			var ep = module.EntryPoint;
+			var ep = Module.EntryPoint;
 			if (ep == null || ep.Body == null)
 				return Version.Unknown;
 			var type = ep.DeclaringType;
@@ -149,11 +149,11 @@ namespace de4dot.code.deobfuscators.MPRESS {
 				return Version.Unknown;
 			if (!new FieldTypes(type).Exactly(requiredFields))
 				return Version.Unknown;
-			if (module.Types.Count != 2)
+			if (Module.Types.Count != 2)
 				return Version.Unknown;
-			if (module.Types[1] != type)
+			if (Module.Types[1] != type)
 				return Version.Unknown;
-			if (module.Types[0].Methods.Count != 0)
+			if (Module.Types[0].Methods.Count != 0)
 				return Version.Unknown;
 
 			if (CheckMethods(type, methods_v0x))
@@ -195,7 +195,7 @@ namespace de4dot.code.deobfuscators.MPRESS {
 			if (count != 0 || version == Version.Unknown)
 				return false;
 
-			byte[] fileData = ModuleBytes ?? DeobUtils.ReadModule(module);
+			byte[] fileData = ModuleBytes ?? DeobUtils.ReadModule(Module);
 			byte[] decompressed;
 			using (var peImage = new MyPEImage(fileData)) {
 				var section = peImage.Sections[peImage.Sections.Count - 1];
@@ -248,15 +248,15 @@ namespace de4dot.code.deobfuscators.MPRESS {
 		}
 
 		void FixInvalidMvid() {
-			if (module.Mvid == Guid.Empty) {
-				var hash = new SHA1Managed().ComputeHash(Encoding.UTF8.GetBytes(module.ToString()));
+			if (Module.Mvid == Guid.Empty) {
+				var hash = new SHA1Managed().ComputeHash(Encoding.UTF8.GetBytes(Module.ToString()));
 				var guid = new Guid(BitConverter.ToInt32(hash, 0),
 									BitConverter.ToInt16(hash, 4),
 									BitConverter.ToInt16(hash, 6),
 									hash[8], hash[9], hash[10], hash[11],
 									hash[12], hash[13], hash[14], hash[15]);
 				Logger.v("Updating MVID: {0}", guid.ToString("B"));
-				module.Mvid = guid;
+				Module.Mvid = guid;
 			}
 		}
 

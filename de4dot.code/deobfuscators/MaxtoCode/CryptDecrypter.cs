@@ -21,9 +21,9 @@ using System;
 
 namespace de4dot.code.deobfuscators.MaxtoCode {
 	class CryptDecrypter {
-		byte[] key;
+		byte[] _key;
 
-		static readonly byte[] sbox = new byte[8 * 8 * 8] {
+		static readonly byte[] Sbox = new byte[8 * 8 * 8] {
 			14,  4, 13,  1,  2, 15, 11,  8,
 			 3, 10,  6, 12,  5,  9,  0,  7,
 			 0, 15,  7,  4, 14,  2, 13,  1,
@@ -89,13 +89,13 @@ namespace de4dot.code.deobfuscators.MaxtoCode {
 			 2,  1, 14,  7,  4, 10,  8, 13,
 			15, 12,  9,  0,  3,  5,  6, 11,
 		};
-		static readonly byte[] perm = new byte[32] {
+		static readonly byte[] Perm = new byte[32] {
 			16,  7, 20, 21, 29, 12, 28, 17,
 			 1, 15, 23, 26,  5, 18, 31, 10,
 			 2,  8, 24, 14, 32, 27,  3,  9,
 			19, 13, 30,  6, 22, 11,  4, 25,
 		};
-		static readonly byte[] esel = new byte[48] {
+		static readonly byte[] Esel = new byte[48] {
 			32,  1,  2,  3,  4,  5,  4,  5,
 			 6,  7,  8,  9,  8,  9, 10, 11,
 			12, 13, 12, 13, 14, 15, 16, 17,
@@ -103,7 +103,7 @@ namespace de4dot.code.deobfuscators.MaxtoCode {
 			22, 23, 24, 25, 24, 25, 26, 27,
 			28, 29, 28, 29, 30, 31, 32,  1,
 		};
-		static readonly byte[] ip = new byte[64] {
+		static readonly byte[] Ip = new byte[64] {
 			58, 50, 42, 34, 26, 18, 10,  2,
 			60, 52, 44, 36, 28, 20, 12,  4,
 			62, 54, 46, 38, 30, 22, 14,  6,
@@ -113,7 +113,7 @@ namespace de4dot.code.deobfuscators.MaxtoCode {
 			61, 53, 45, 37, 29, 21, 13,  5,
 			63, 55, 47, 39, 31, 23, 15,  7,
 		};
-		static readonly byte[] final = new byte[64] {
+		static readonly byte[] Final = new byte[64] {
 			40,  8, 48, 16, 56, 24, 64, 32,
 			39,  7, 47, 15, 55, 23, 63, 31,
 			38,  6, 46, 14, 54, 22, 62, 30,
@@ -123,7 +123,7 @@ namespace de4dot.code.deobfuscators.MaxtoCode {
 			34,  2, 42, 10, 50, 18, 58, 26,
 			33,  1, 41,  9, 49, 17, 57, 25,
 		};
-		static readonly byte[] pc1 = new byte[56] {
+		static readonly byte[] Pc1 = new byte[56] {
 			57, 49, 41, 33, 25, 17,  9,  1,
 			58, 50, 42, 34, 26, 18, 10,  2,
 			59, 51, 43, 35, 27, 19, 11,  3,
@@ -132,7 +132,7 @@ namespace de4dot.code.deobfuscators.MaxtoCode {
 			30, 22, 14,  6, 61, 53, 45, 37,
 			29, 21, 13,  5, 28, 20, 12,  4,
 		};
-		static readonly byte[] pc2 = new byte[48] {
+		static readonly byte[] Pc2 = new byte[48] {
 			14, 17, 11, 24,  1,  5,  3, 28,
 			15,  6, 21, 10, 23, 19, 12,  4,
 			26,  8, 16,  7, 27, 20, 13,  2,
@@ -140,12 +140,12 @@ namespace de4dot.code.deobfuscators.MaxtoCode {
 			51, 45, 33, 48, 44, 49, 39, 56,
 			34, 53, 46, 42, 50, 36, 29, 32,
 		};
-		static readonly byte[] rots = new byte[16] {
+		static readonly byte[] Rots = new byte[16] {
 			1, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1,
 		};
 
 		struct Bits {
-			readonly byte[] byteBits;
+			readonly byte[] _byteBits;
 
 			public static Bits FromBytes(byte[] bytes) {
 				return FromBytes(bytes, 0, bytes.Length * 8);
@@ -166,28 +166,28 @@ namespace de4dot.code.deobfuscators.MaxtoCode {
 			public static Bits FromByteBits(byte[] byteBits, int index, int numBits) {
 				var bits = new Bits(numBits);
 				for (int i = 0; i < numBits; i++)
-					bits.byteBits[i] = byteBits[index + i];
+					bits._byteBits[i] = byteBits[index + i];
 				return bits;
 			}
 
 			public byte this[int index] {
-				get { return byteBits[index]; }
+				get { return _byteBits[index]; }
 			}
 
 			public byte[] ByteBits {
-				get { return byteBits; }
+				get { return _byteBits; }
 			}
 
 			Bits(int numBits) {
-				this.byteBits = new byte[numBits];
+				this._byteBits = new byte[numBits];
 			}
 
 			Bits(byte[] bytes1, byte[] bytes2) {
-				this.byteBits = Concat(bytes1, bytes2);
+				this._byteBits = Concat(bytes1, bytes2);
 			}
 
 			Bits(byte[] bytes, int index, int numBits) {
-				this.byteBits = ToByteBits(bytes, index, numBits);
+				this._byteBits = ToByteBits(bytes, index, numBits);
 			}
 
 			static byte[] ToByteBits(byte[] bytes, int index, int numBits) {
@@ -210,17 +210,17 @@ namespace de4dot.code.deobfuscators.MaxtoCode {
 			public Bits Transpose(byte[] bits) {
 				var result = new Bits(bits.Length);
 				for (int i = 0; i < bits.Length; i++)
-					result.byteBits[i] = byteBits[bits[i] - 1];
+					result._byteBits[i] = _byteBits[bits[i] - 1];
 				return result;
 			}
 
 			public void Rol() {
-				if (byteBits.Length == 0)
+				if (_byteBits.Length == 0)
 					return;
-				var first = byteBits[0];
-				for (int i = 1; i < byteBits.Length; i++)
-					byteBits[i - 1] = byteBits[i];
-				byteBits[byteBits.Length - 1] = first;
+				var first = _byteBits[0];
+				for (int i = 1; i < _byteBits.Length; i++)
+					_byteBits[i - 1] = _byteBits[i];
+				_byteBits[_byteBits.Length - 1] = first;
 			}
 
 			public void Rol(int num) {
@@ -229,7 +229,7 @@ namespace de4dot.code.deobfuscators.MaxtoCode {
 			}
 
 			public Bits Extract(int index, int numBits) {
-				return FromByteBits(byteBits, index, numBits);
+				return FromByteBits(_byteBits, index, numBits);
 			}
 
 			public void ToBits(byte[] dest, int index) {
@@ -238,11 +238,11 @@ namespace de4dot.code.deobfuscators.MaxtoCode {
 			}
 
 			public byte[] ToBits() {
-				var bits = new byte[(byteBits.Length + 7) / 8];
+				var bits = new byte[(_byteBits.Length + 7) / 8];
 				for (int i = 0; i < bits.Length; i++) {
 					byte val = 0;
-					for (int j = i * 8, k = 1; j < byteBits.Length; j++, k <<= 1) {
-						if (byteBits[j] != 0)
+					for (int j = i * 8, k = 1; j < _byteBits.Length; j++, k <<= 1) {
+						if (_byteBits[j] != 0)
 							val |= (byte)k;
 					}
 					bits[i] = val;
@@ -251,31 +251,31 @@ namespace de4dot.code.deobfuscators.MaxtoCode {
 			}
 
 			public Bits Clone() {
-				return FromByteBits(byteBits, 0, byteBits.Length);
+				return FromByteBits(_byteBits, 0, _byteBits.Length);
 			}
 
 			public void Set(int destIndex, Bits other) {
-				for (int i = 0; i < other.byteBits.Length; i++)
-					byteBits[destIndex + i] = other.byteBits[i];
+				for (int i = 0; i < other._byteBits.Length; i++)
+					_byteBits[destIndex + i] = other._byteBits[i];
 			}
 
 			public void Xor(Bits other) {
-				if (byteBits.Length != other.byteBits.Length)
+				if (_byteBits.Length != other._byteBits.Length)
 					throw new ArgumentException("other");
-				for (int i = 0; i < byteBits.Length; i++)
-					byteBits[i] ^= other.byteBits[i];
+				for (int i = 0; i < _byteBits.Length; i++)
+					_byteBits[i] ^= other._byteBits[i];
 			}
 
 			public void CopyTo(byte[] dest, int index) {
-				for (int i = 0; i < byteBits.Length; i++)
-					dest[index + i] = byteBits[i];
+				for (int i = 0; i < _byteBits.Length; i++)
+					dest[index + i] = _byteBits[i];
 			}
 		}
 
 		public CryptDecrypter(byte[] key) {
 			if (key.Length <= 8)
 				throw new ArgumentException("Invalid size", "key");
-			this.key = key;
+			this._key = key;
 		}
 
 		public static byte[] Decrypt(byte[] key, byte[] encrypted) {
@@ -285,8 +285,8 @@ namespace de4dot.code.deobfuscators.MaxtoCode {
 		byte[] Decrypt(byte[] encrypted) {
 			if (encrypted.Length % 8 != 0)
 				throw new ArgumentException("encrypted");
-			var key1 = CreateKey(key, 0);
-			var key2 = CreateKey(key, 8);
+			var key1 = CreateKey(_key, 0);
+			var key2 = CreateKey(_key, 8);
 
 			var decrypted = new byte[encrypted.Length];
 			int count = encrypted.Length / 8;
@@ -303,7 +303,7 @@ namespace de4dot.code.deobfuscators.MaxtoCode {
 		}
 
 		byte[] Decrypt(byte[] data, Bits key, bool flag) {
-			var bits = Bits.FromBytes(data).Transpose(ip);
+			var bits = Bits.FromBytes(data).Transpose(Ip);
 
 			if (flag) {
 				for (int i = 0, ki = key.ByteBits.Length - 48; i < 16; i++, ki -= 48) {
@@ -324,14 +324,14 @@ namespace de4dot.code.deobfuscators.MaxtoCode {
 				}
 			}
 
-			bits = bits.Transpose(final);
+			bits = bits.Transpose(Final);
 			return bits.ToBits();
 		}
 
 		Bits Decrypt(Bits data, Bits key) {
-			var newData = data.Clone().Transpose(esel);
+			var newData = data.Clone().Transpose(Esel);
 			newData.Xor(key);
-			return Bits.FromByteBits(GetSbox(newData)).Transpose(perm);
+			return Bits.FromByteBits(GetSbox(newData)).Transpose(Perm);
 		}
 
 		byte[] GetSbox(Bits data) {
@@ -341,7 +341,7 @@ namespace de4dot.code.deobfuscators.MaxtoCode {
 				int di = i * 6;
 				int index = (data[di + 0] << 5) + (data[di + 5] << 4) + (data[di + 1] << 3) +
 							(data[di + 2] << 2) + (data[di + 3] << 1) + data[di + 4] + i * 64;
-				Bits.FromBytes(sbox, index, 4).CopyTo(sboxByteBits, i * 4);
+				Bits.FromBytes(Sbox, index, 4).CopyTo(sboxByteBits, i * 4);
 			}
 
 			return sboxByteBits;
@@ -353,10 +353,10 @@ namespace de4dot.code.deobfuscators.MaxtoCode {
 			byte[] newKey = new byte[16 * 6];
 			byte[] tmpData = new byte[28 * 2];
 			for (int i = 0; i < 16; i++) {
-				int rolCount = rots[i];
+				int rolCount = Rots[i];
 				key1.Rol(rolCount);
 				key2.Rol(rolCount);
-				Bits.FromByteBits(key1.ByteBits, key2.ByteBits).Transpose(pc2).ToBits(newKey, i * 6);
+				Bits.FromByteBits(key1.ByteBits, key2.ByteBits).Transpose(Pc2).ToBits(newKey, i * 6);
 			}
 			return Bits.FromBytes(newKey);
 		}
@@ -367,7 +367,7 @@ namespace de4dot.code.deobfuscators.MaxtoCode {
 			if (len == 0)
 				throw new ArgumentException("data");
 			Array.Copy(data, index, tmpKey, 0, len);
-			var bits = Bits.FromBytes(tmpKey).Transpose(pc1);
+			var bits = Bits.FromBytes(tmpKey).Transpose(Pc1);
 			key1 = Bits.FromByteBits(bits.ByteBits, 0, 28);
 			key2 = Bits.FromByteBits(bits.ByteBits, 28, 28);
 		}

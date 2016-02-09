@@ -328,7 +328,7 @@ namespace de4dot.code.renamer {
 				if (isVerbose)
 					Logger.v("Removing namespace: {0}", Utils.RemoveNewlines(list[0].TypeDef.Namespace));
 				foreach (var type in list)
-					memberInfos.Type(type).newNamespace = "";
+					memberInfos.Type(type).NewNamespace = "";
 			}
 		}
 
@@ -358,9 +358,9 @@ namespace de4dot.code.renamer {
 					Logger.v("Name: {0} => {1}", Utils.RemoveNewlines(old), Utils.RemoveNewlines(typeDef.Name));
 			}
 
-			if (RenameNamespaces && info.newNamespace != null) {
+			if (RenameNamespaces && info.NewNamespace != null) {
 				var old = typeDef.Namespace;
-				typeDef.Namespace = info.newNamespace;
+				typeDef.Namespace = info.NewNamespace;
 				if (isVerbose)
 					Logger.v("Namespace: {0} => {1}", Utils.RemoveNewlines(old), Utils.RemoveNewlines(typeDef.Namespace));
 			}
@@ -398,7 +398,7 @@ namespace de4dot.code.renamer {
 			var info = memberInfos.Type(type);
 
 			if (isVerbose)
-				Logger.v("Type: {0}", Utils.RemoveNewlines(info.type.TypeDef.FullName));
+				Logger.v("Type: {0}", Utils.RemoveNewlines(info.Type.TypeDef.FullName));
 			Logger.Instance.Indent();
 
 			RenameFields2(info);
@@ -412,8 +412,8 @@ namespace de4dot.code.renamer {
 		void RenameFields2(TypeInfo info) {
 			if (!RenameFields)
 				return;
-			bool isDelegateType = isDelegateClass.Check(info.type);
-			foreach (var fieldDef in info.type.AllFieldsSorted) {
+			bool isDelegateType = isDelegateClass.Check(info.Type);
+			foreach (var fieldDef in info.Type.AllFieldsSorted) {
 				var fieldInfo = memberInfos.Field(fieldDef);
 				if (!fieldInfo.GotNewName())
 					continue;
@@ -431,7 +431,7 @@ namespace de4dot.code.renamer {
 		void RenameProperties2(TypeInfo info) {
 			if (!RenameProperties)
 				return;
-			foreach (var propDef in info.type.AllPropertiesSorted) {
+			foreach (var propDef in info.Type.AllPropertiesSorted) {
 				var propInfo = memberInfos.Property(propDef);
 				if (!propInfo.GotNewName())
 					continue;
@@ -447,7 +447,7 @@ namespace de4dot.code.renamer {
 		void RenameEvents2(TypeInfo info) {
 			if (!RenameEvents)
 				return;
-			foreach (var eventDef in info.type.AllEventsSorted) {
+			foreach (var eventDef in info.Type.AllEventsSorted) {
 				var eventInfo = memberInfos.Event(eventDef);
 				if (!eventInfo.GotNewName())
 					continue;
@@ -463,7 +463,7 @@ namespace de4dot.code.renamer {
 		void RenameMethods2(TypeInfo info) {
 			if (!RenameMethods && !RenameMethodArgs && !RenameGenericParams)
 				return;
-			foreach (var methodDef in info.type.AllMethodsSorted) {
+			foreach (var methodDef in info.Type.AllMethodsSorted) {
 				var methodInfo = memberInfos.Method(methodDef);
 				if (isVerbose)
 					Logger.v("Method {0} ({1:X8})", Utils.RemoveNewlines(methodInfo.oldFullName), methodDef.MethodDef.MDToken.ToUInt32());
@@ -536,7 +536,7 @@ namespace de4dot.code.renamer {
 			var renamedTypes = new List<TypeInfo>();
 			foreach (var type in module.GetAllTypes()) {
 				var info = memberInfos.Type(type);
-				if (info.oldFullName != info.type.TypeDef.FullName)
+				if (info.oldFullName != info.Type.TypeDef.FullName)
 					renamedTypes.Add(info);
 			}
 			if (renamedTypes.Count == 0)
@@ -1348,8 +1348,8 @@ namespace de4dot.code.renamer {
 				if (method.Event != null) {
 					memberInfos.Event(method.Event).Rename(newEventNameWithPrefix);
 					var ownerInfo = memberInfos.Type(method.Owner);
-					ownerInfo.variableNameState.AddEventName(newEventName);
-					ownerInfo.variableNameState.AddEventName(newEventNameWithPrefix);
+					ownerInfo.VariableNameState.AddEventName(newEventName);
+					ownerInfo.VariableNameState.AddEventName(newEventNameWithPrefix);
 				}
 			}
 
@@ -1466,8 +1466,8 @@ namespace de4dot.code.renamer {
 				if (method.Property != null) {
 					memberInfos.Property(method.Property).Rename(newPropNameWithPrefix);
 					var ownerInfo = memberInfos.Type(method.Owner);
-					ownerInfo.variableNameState.AddPropertyName(newPropName);
-					ownerInfo.variableNameState.AddPropertyName(newPropNameWithPrefix);
+					ownerInfo.VariableNameState.AddPropertyName(newPropName);
+					ownerInfo.VariableNameState.AddPropertyName(newPropNameWithPrefix);
 				}
 			}
 
@@ -1717,11 +1717,11 @@ namespace de4dot.code.renamer {
 					return;
 
 				if ((flags & MergeStateFlags.Methods) != MergeStateFlags.None)
-					info.variableNameState.MergeMethods(otherInfo.variableNameState);
+					info.VariableNameState.MergeMethods(otherInfo.VariableNameState);
 				if ((flags & MergeStateFlags.Properties) != MergeStateFlags.None)
-					info.variableNameState.MergeProperties(otherInfo.variableNameState);
+					info.VariableNameState.MergeProperties(otherInfo.VariableNameState);
 				if ((flags & MergeStateFlags.Events) != MergeStateFlags.None)
-					info.variableNameState.MergeEvents(otherInfo.variableNameState);
+					info.VariableNameState.MergeEvents(otherInfo.VariableNameState);
 			}
 		}
 
@@ -1758,7 +1758,7 @@ namespace de4dot.code.renamer {
 
 		bool IsMethodAvailable(MethodNameGroup group, string methodName) {
 			foreach (var method in group.Methods) {
-				if (memberInfos.Type(method.Owner).variableNameState.IsMethodNameUsed(methodName))
+				if (memberInfos.Type(method.Owner).VariableNameState.IsMethodNameUsed(methodName))
 					return false;
 			}
 			return true;
@@ -1766,7 +1766,7 @@ namespace de4dot.code.renamer {
 
 		bool IsPropertyAvailable(MethodNameGroup group, string methodName) {
 			foreach (var method in group.Methods) {
-				if (memberInfos.Type(method.Owner).variableNameState.IsPropertyNameUsed(methodName))
+				if (memberInfos.Type(method.Owner).VariableNameState.IsPropertyNameUsed(methodName))
 					return false;
 			}
 			return true;
@@ -1774,7 +1774,7 @@ namespace de4dot.code.renamer {
 
 		bool IsEventAvailable(MethodNameGroup group, string methodName) {
 			foreach (var method in group.Methods) {
-				if (memberInfos.Type(method.Owner).variableNameState.IsEventNameUsed(methodName))
+				if (memberInfos.Type(method.Owner).VariableNameState.IsEventNameUsed(methodName))
 					return false;
 			}
 			return true;

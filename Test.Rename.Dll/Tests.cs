@@ -940,9 +940,9 @@ namespace Test.Rename.Dll {
 
 	namespace test.generic.types.methods1 {
 		class Class1<T, U, V> {
-			T a;
-			U b;
-			V c;
+			T _a;
+			U _b;
+			V _c;
 			void meth1(T a) { }
 			void meth1(U a) { }
 			void meth1(V a) { }

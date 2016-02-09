@@ -97,11 +97,11 @@ namespace de4dot.code.deobfuscators.CodeFort {
 		}
 
 		protected override void ScanForObfuscator() {
-			proxyCallFixer = new ProxyCallFixer(module);
+			proxyCallFixer = new ProxyCallFixer(Module);
 			proxyCallFixer.FindDelegateCreator();
-			stringDecrypter = new StringDecrypter(module);
+			stringDecrypter = new StringDecrypter(Module);
 			stringDecrypter.Find();
-			assemblyDecrypter = new AssemblyDecrypter(module);
+			assemblyDecrypter = new AssemblyDecrypter(Module);
 			assemblyDecrypter.Find();
 		}
 
@@ -145,7 +145,7 @@ namespace de4dot.code.deobfuscators.CodeFort {
 				AddResourceToBeRemoved(info.resource, string.Format("Embedded assembly: {0}", info.asmFullName));
 			}
 			AddCctorInitCallToBeRemoved(assemblyDecrypter.InitMethod);
-			AddCallToBeRemoved(module.EntryPoint, assemblyDecrypter.InitMethod);
+			AddCallToBeRemoved(Module.EntryPoint, assemblyDecrypter.InitMethod);
 			AddTypeToBeRemoved(assemblyDecrypter.Type, "Assembly resolver type");
 		}
 

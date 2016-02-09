@@ -152,7 +152,7 @@ namespace de4dot.code.deobfuscators.CryptoObfuscator {
 		}
 
 		protected override void ScanForObfuscator() {
-			foreach (var type in module.Types) {
+			foreach (var type in Module.Types) {
 				if (type.FullName == "CryptoObfuscator.ProtectedWithCryptoObfuscatorAttribute") {
 					foundCryptoObfuscatorAttribute = true;
 					AddAttributeToBeRemoved(type, "Obfuscator attribute");
@@ -163,17 +163,17 @@ namespace de4dot.code.deobfuscators.CryptoObfuscator {
 				foundObfuscatedSymbols = true;
 
 			inlinedMethodTypes = new InlinedMethodTypes();
-			methodsDecrypter = new MethodsDecrypter(module);
+			methodsDecrypter = new MethodsDecrypter(Module);
 			methodsDecrypter.Find();
-			proxyCallFixer = new ProxyCallFixer(module);
+			proxyCallFixer = new ProxyCallFixer(Module);
 			proxyCallFixer.FindDelegateCreator();
-			stringDecrypter = new StringDecrypter(module);
+			stringDecrypter = new StringDecrypter(Module);
 			stringDecrypter.Find();
-			tamperDetection = new TamperDetection(module);
+			tamperDetection = new TamperDetection(Module);
 			tamperDetection.Find();
-			constantsDecrypter = new ConstantsDecrypter(module, initializedDataCreator);
+			constantsDecrypter = new ConstantsDecrypter(Module, initializedDataCreator);
 			constantsDecrypter.Find();
-			foundObfuscatorUserString = Utils.StartsWith(module.ReadUserString(0x70000001), "\u0011\"3D9B94A98B-76A8-4810-B1A0-4BE7C4F9C98D", StringComparison.Ordinal);
+			foundObfuscatorUserString = Utils.StartsWith(Module.ReadUserString(0x70000001), "\u0011\"3D9B94A98B-76A8-4810-B1A0-4BE7C4F9C98D", StringComparison.Ordinal);
 		}
 
 		void InitializeVersion(TypeDef attr) {
@@ -190,7 +190,7 @@ namespace de4dot.code.deobfuscators.CryptoObfuscator {
 
 		bool CheckCryptoObfuscator() {
 			int matched = 0;
-			foreach (var type in module.Types) {
+			foreach (var type in Module.Types) {
 				if (type.Namespace != "A")
 					continue;
 				if (Regex.IsMatch(type.Name.String, "^c[0-9a-f]{32}$"))
@@ -206,9 +206,9 @@ namespace de4dot.code.deobfuscators.CryptoObfuscator {
 		public override void DeobfuscateBegin() {
 			base.DeobfuscateBegin();
 
-			resourceDecrypter = new ResourceDecrypter(module, DeobfuscatedFile);
-			resourceResolver = new ResourceResolver(module, resourceDecrypter);
-			assemblyResolver = new AssemblyResolver(module);
+			resourceDecrypter = new ResourceDecrypter(Module, DeobfuscatedFile);
+			resourceResolver = new ResourceResolver(Module, resourceDecrypter);
+			assemblyResolver = new AssemblyResolver(Module);
 			resourceResolver.Find();
 			assemblyResolver.Find(DeobfuscatedFile);
 
@@ -229,7 +229,7 @@ namespace de4dot.code.deobfuscators.CryptoObfuscator {
 				if (!tamperDetection.Detected)
 					tamperDetection.Find();
 			}
-			antiDebugger = new AntiDebugger(module, DeobfuscatedFile, this);
+			antiDebugger = new AntiDebugger(Module, DeobfuscatedFile, this);
 			antiDebugger.Find();
 
 			if (options.DecryptConstants) {
@@ -248,9 +248,9 @@ namespace de4dot.code.deobfuscators.CryptoObfuscator {
 
 			AddModuleCctorInitCallToBeRemoved(resourceResolver.Method);
 			AddModuleCctorInitCallToBeRemoved(assemblyResolver.Method);
-			AddCallToBeRemoved(module.EntryPoint, tamperDetection.Method);
+			AddCallToBeRemoved(Module.EntryPoint, tamperDetection.Method);
 			AddModuleCctorInitCallToBeRemoved(tamperDetection.Method);
-			AddCallToBeRemoved(module.EntryPoint, antiDebugger.Method);
+			AddCallToBeRemoved(Module.EntryPoint, antiDebugger.Method);
 			AddModuleCctorInitCallToBeRemoved(antiDebugger.Method);
 			AddTypeToBeRemoved(resourceResolver.Type, "Resource resolver type");
 			AddTypeToBeRemoved(assemblyResolver.Type, "Assembly resolver type");
@@ -281,7 +281,7 @@ namespace de4dot.code.deobfuscators.CryptoObfuscator {
 
 		public override void DeobfuscateEnd() {
 			if (options.FixLdnull)
-				new LdnullFixer(module, inlinedMethodTypes).Restore();
+				new LdnullFixer(Module, inlinedMethodTypes).Restore();
 			RemoveProxyDelegates(proxyCallFixer);
 			if (CanRemoveStringDecrypterType) {
 				AddResourceToBeRemoved(stringDecrypter.Resource, "Encrypted strings");

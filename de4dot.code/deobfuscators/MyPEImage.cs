@@ -93,7 +93,7 @@ namespace de4dot.code.deobfuscators {
 			dm.token = 0x06000000 + rid;
 			var row = MetaData.TablesStream.ReadMethodRow(rid);
 			if (row == null)
-				throw new ArgumentException("Invalid Method rid");
+				throw new ArgumentException("Invalid Method _rid");
 			dm.mdRVA = row.RVA;
 			dm.mdImplFlags = row.ImplFlags;
 			dm.mdFlags = row.Flags;

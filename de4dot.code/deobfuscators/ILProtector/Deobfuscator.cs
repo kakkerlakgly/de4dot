@@ -85,15 +85,15 @@ namespace de4dot.code.deobfuscators.ILProtector {
 		}
 
 		protected override void ScanForObfuscator() {
-			mainType = new MainType(module);
+			mainType = new MainType(Module);
 			mainType.Find();
 
-			staticMethodsDecrypter = new StaticMethodsDecrypter(module, mainType);
+			staticMethodsDecrypter = new StaticMethodsDecrypter(Module, mainType);
 			if (mainType.Detected)
 				staticMethodsDecrypter.Find();
 
 			if (mainType.Detected && !staticMethodsDecrypter.Detected)
-				dynamicMethodsRestorer = new DynamicMethodsRestorer(module, mainType);
+				dynamicMethodsRestorer = new DynamicMethodsRestorer(Module, mainType);
 
 			if (mainType.Detected) {
 				if (staticMethodsDecrypter.Detected)

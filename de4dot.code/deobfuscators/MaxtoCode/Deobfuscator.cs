@@ -96,7 +96,7 @@ namespace de4dot.code.deobfuscators.MaxtoCode {
 		}
 
 		protected override void ScanForObfuscator() {
-			mainType = new MainType(module);
+			mainType = new MainType(Module);
 			mainType.Find();
 		}
 
@@ -104,9 +104,9 @@ namespace de4dot.code.deobfuscators.MaxtoCode {
 			if (count != 0 || !mainType.Detected)
 				return false;
 
-			var fileData = DeobUtils.ReadModule(module);
+			var fileData = DeobUtils.ReadModule(Module);
 			decrypterInfo = new DecrypterInfo(mainType, fileData);
-			var methodsDecrypter = new MethodsDecrypter(module, decrypterInfo);
+			var methodsDecrypter = new MethodsDecrypter(Module, decrypterInfo);
 
 			if (!methodsDecrypter.Decrypt(ref dumpedMethods))
 				return false;
@@ -198,7 +198,7 @@ namespace de4dot.code.deobfuscators.MaxtoCode {
 
 		void RemoveDuplicateEmbeddedResources() {
 			var resources = new Dictionary<ResourceKey, List<EmbeddedResource>>();
-			foreach (var tmp in module.Resources) {
+			foreach (var tmp in Module.Resources) {
 				var rsrc = tmp as EmbeddedResource;
 				if (rsrc == null)
 					continue;
@@ -235,7 +235,7 @@ namespace de4dot.code.deobfuscators.MaxtoCode {
 		}
 
 		void RemoveInvalidResources() {
-			foreach (var tmp in module.Resources) {
+			foreach (var tmp in Module.Resources) {
 				var resource = tmp as EmbeddedResource;
 				if (resource == null)
 					continue;

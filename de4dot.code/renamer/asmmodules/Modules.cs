@@ -26,7 +26,7 @@ namespace de4dot.code.renamer.asmmodules {
 	public class Modules : IResolver {
 		bool initializeCalled = false;
 		IDeobfuscatorContext deobfuscatorContext;
-		List<Module> modules = new List<Module>();
+		List<Module> _modules = new List<Module>();
 		Dictionary<ModuleDef, Module> modulesDict = new Dictionary<ModuleDef, Module>();
 		AssemblyHash assemblyHash = new AssemblyHash();
 
@@ -35,7 +35,7 @@ namespace de4dot.code.renamer.asmmodules {
 		List<MTypeDef> nonNestedTypes;
 
 		public IList<Module> TheModules {
-			get { return modules; }
+			get { return _modules; }
 		}
 
 		public IEnumerable<MTypeDef> AllTypes {
@@ -137,7 +137,7 @@ namespace de4dot.code.renamer.asmmodules {
 		}
 
 		public bool Empty {
-			get { return modules.Count == 0; }
+			get { return _modules.Count == 0; }
 		}
 
 		public Modules(IDeobfuscatorContext deobfuscatorContext) {
@@ -151,7 +151,7 @@ namespace de4dot.code.renamer.asmmodules {
 			if (modulesDict.TryGetValue(module.ModuleDefMD, out otherModule))
 				return;
 			modulesDict[module.ModuleDefMD] = module;
-			modules.Add(module);
+			_modules.Add(module);
 			assemblyHash.Add(module);
 		}
 
@@ -165,8 +165,8 @@ namespace de4dot.code.renamer.asmmodules {
 		void FindAllMemberRefs() {
 			Logger.v("Finding all MemberRefs");
 			int index = 0;
-			foreach (var module in modules) {
-				if (modules.Count > 1)
+			foreach (var module in _modules) {
+				if (_modules.Count > 1)
 					Logger.v("Finding all MemberRefs ({0})", module.Filename);
 				Logger.Instance.Indent();
 				module.FindAllMemberRefs(ref index);
@@ -176,8 +176,8 @@ namespace de4dot.code.renamer.asmmodules {
 
 		void ResolveAllRefs() {
 			Logger.v("Resolving references");
-			foreach (var module in modules) {
-				if (modules.Count > 1)
+			foreach (var module in _modules) {
+				if (_modules.Count > 1)
 					Logger.v("Resolving references ({0})", module.Filename);
 				Logger.Instance.Indent();
 				module.ResolveAllRefs(this);
@@ -186,7 +186,7 @@ namespace de4dot.code.renamer.asmmodules {
 		}
 
 		void InitAllTypes() {
-			foreach (var module in modules)
+			foreach (var module in _modules)
 				allTypes.AddRange(module.GetAllTypes());
 
 			var typeToTypeDef = new Dictionary<TypeDef, MTypeDef>(allTypes.Count);
@@ -368,7 +368,7 @@ namespace de4dot.code.renamer.asmmodules {
 		}
 
 		public void OnTypesRenamed() {
-			foreach (var module in modules)
+			foreach (var module in _modules)
 				module.OnTypesRenamed();
 		}
 

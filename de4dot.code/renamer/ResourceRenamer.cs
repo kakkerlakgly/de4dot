@@ -81,7 +81,7 @@ namespace de4dot.code.renamer {
 					TypeInfo typeInfo;
 					if (!oldNameToTypeInfo.TryGetValue(codeString, out typeInfo))
 						continue;
-					var newName = typeInfo.type.TypeDef.FullName;
+					var newName = typeInfo.Type.TypeDef.FullName;
 
 					bool renameCodeString = module.ObfuscatedFile.RenameResourcesInCode ||
 											IsCallingResourceManagerCtor(instrs, i, typeInfo);
@@ -102,7 +102,7 @@ namespace de4dot.code.renamer {
 				var ldtoken = instrs[index++];
 				if (ldtoken.OpCode.Code != Code.Ldtoken)
 					return false;
-				if (!new SigComparer().Equals(typeInfo.type.TypeDef, ldtoken.Operand as ITypeDefOrRef))
+				if (!new SigComparer().Equals(typeInfo.Type.TypeDef, ldtoken.Operand as ITypeDefOrRef))
 					return false;
 
 				if (!CheckCalledMethod(instrs[index++], "System.Type", "(System.RuntimeTypeHandle)"))
@@ -155,7 +155,7 @@ namespace de4dot.code.renamer {
 					continue;
 				if (newNames.ContainsKey(resource))
 					continue;
-				var newTypeName = info.type.TypeDef.FullName;
+				var newTypeName = info.Type.TypeDef.FullName;
 				var newName = newTypeName + resource.Name.String.Substring(oldFullName.Length);
 				newNames[resource] = new RenameInfo(resource, info, newName);
 

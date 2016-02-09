@@ -107,9 +107,9 @@ namespace de4dot.code.deobfuscators.CodeWall {
 		}
 
 		protected override void ScanForObfuscator() {
-			methodsDecrypter = new MethodsDecrypter(module);
+			methodsDecrypter = new MethodsDecrypter(Module);
 			methodsDecrypter.Find();
-			stringDecrypter = new StringDecrypter(module);
+			stringDecrypter = new StringDecrypter(Module);
 			stringDecrypter.Find();
 			var version = DetectVersion();
 			if (version != null)
@@ -162,7 +162,7 @@ namespace de4dot.code.deobfuscators.CodeWall {
 			if (!methodsDecrypter.Detected)
 				return false;
 
-			byte[] fileData = ModuleBytes ?? DeobUtils.ReadModule(module);
+			byte[] fileData = ModuleBytes ?? DeobUtils.ReadModule(Module);
 			using (var peImage = new MyPEImage(fileData)) {
 				if (!methodsDecrypter.Decrypt(peImage, ref dumpedMethods))
 					return false;
@@ -181,7 +181,7 @@ namespace de4dot.code.deobfuscators.CodeWall {
 				return null;
 			}
 
-			var asm = module.Assembly;
+			var asm = Module.Assembly;
 			if (asm == null || assemblyDecrypter == null)
 				return null;
 			var asmInfo = assemblyDecrypter.FindMain(asm.FullName) ?? assemblyDecrypter.FindMain();
@@ -227,7 +227,7 @@ namespace de4dot.code.deobfuscators.CodeWall {
 		void InitializeAssemblyDecrypter() {
 			if (!options.DumpEmbeddedAssemblies || assemblyDecrypter != null)
 				return;
-			assemblyDecrypter = new AssemblyDecrypter(module, DeobfuscatedFile, this);
+			assemblyDecrypter = new AssemblyDecrypter(Module, DeobfuscatedFile, this);
 			assemblyDecrypter.Find();
 		}
 
