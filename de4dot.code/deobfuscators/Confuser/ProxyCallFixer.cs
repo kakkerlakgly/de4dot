@@ -315,9 +315,7 @@ namespace de4dot.code.deobfuscators.Confuser {
 				calledMethod = CreateMethodReference(asmRef, token);
 			}
 
-			bool isCallvirt = false;
-			if (creatorInfo.proxyCreatorType == ProxyCreatorType.CallOrCallvirt && info.field.Name.String[callvirtOffs] == '\r')
-				isCallvirt = true;
+			bool isCallvirt = creatorInfo.proxyCreatorType == ProxyCreatorType.CallOrCallvirt && info.field.Name.String[callvirtOffs] == '\r';
 			callOpcode = GetCallOpCode(creatorInfo, isCallvirt);
 		}
 
@@ -332,9 +330,7 @@ namespace de4dot.code.deobfuscators.Confuser {
 
 			calledMethod = module.ResolveToken(token) as IMethod;
 
-			bool isCallvirt = false;
-			if (creatorInfo.proxyCreatorType == ProxyCreatorType.CallOrCallvirt && nameInfo[0] == '\r')
-				isCallvirt = true;
+			bool isCallvirt = creatorInfo.proxyCreatorType == ProxyCreatorType.CallOrCallvirt && nameInfo[0] == '\r';
 			callOpcode = GetCallOpCode(creatorInfo, isCallvirt);
 		}
 
