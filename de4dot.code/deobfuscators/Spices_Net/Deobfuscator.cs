@@ -97,7 +97,7 @@ namespace de4dot.code.deobfuscators.Spices_Net {
 		}
 
 		protected override bool CanInlineMethods {
-			get { return startedDeobfuscating ? options.InlineMethods : true; }
+			get { return !startedDeobfuscating || options.InlineMethods; }
 		}
 
 		public override IEnumerable<IBlocksDeobfuscator> BlocksDeobfuscators {

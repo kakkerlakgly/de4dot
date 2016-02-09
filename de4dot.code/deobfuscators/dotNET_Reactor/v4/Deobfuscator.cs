@@ -146,7 +146,7 @@ namespace de4dot.code.deobfuscators.dotNET_Reactor.v4 {
 		}
 
 		protected override bool CanInlineMethods {
-			get { return startedDeobfuscating ? options.InlineMethods : true; }
+			get { return !startedDeobfuscating || options.InlineMethods; }
 		}
 
 		public override IEnumerable<IBlocksDeobfuscator> BlocksDeobfuscators {

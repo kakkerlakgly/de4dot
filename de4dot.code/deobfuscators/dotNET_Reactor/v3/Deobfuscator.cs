@@ -112,7 +112,7 @@ namespace de4dot.code.deobfuscators.dotNET_Reactor.v3 {
 		}
 
 		protected override bool CanInlineMethods {
-			get { return startedDeobfuscating ? options.InlineMethods : true; }
+			get { return !startedDeobfuscating || options.InlineMethods; }
 		}
 
 		public Deobfuscator(Options options)
