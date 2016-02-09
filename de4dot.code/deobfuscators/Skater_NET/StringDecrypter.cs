@@ -166,7 +166,7 @@ namespace de4dot.code.deobfuscators.Skater_NET {
 			if (string.IsNullOrEmpty(password))
 				return false;
 
-			var passwordBytes = new PasswordDeriveBytes(password, salt);
+			var passwordBytes = new Rfc2898DeriveBytes(password, salt);
 			var key = passwordBytes.GetBytes(16);
 			var iv = passwordBytes.GetBytes(8);
 			decrypter = new DecrypterV1(key, iv);

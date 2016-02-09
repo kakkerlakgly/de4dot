@@ -231,7 +231,7 @@ namespace de4dot.code.deobfuscators.CodeWall {
 		}
 
 		byte[] Decrypt(byte[] encrypted) {
-			var keyGenerator = new PasswordDeriveBytes(resourcePassword, Encoding.ASCII.GetBytes(resourceSalt));
+			var keyGenerator = new Rfc2898DeriveBytes(resourcePassword, Encoding.ASCII.GetBytes(resourceSalt));
 			return DeobUtils.Inflate(DeobUtils.AesDecrypt(encrypted, keyGenerator.GetBytes(32), keyGenerator.GetBytes(16)), false);
 		}
 
